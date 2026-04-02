@@ -8,235 +8,214 @@ export interface Product {
   reviews: number;
   image: string;
   category: string;
+  subCategory?: string;
   brand: string;
   badge?: string;
   description: string;
   highlights: string[];
   inStock: boolean;
+  sizes?: string[];
+  colors?: string[];
 }
 
-export const products: Product[] = [
-  {
-    id: 1,
-    name: "Samsung Galaxy S24 Ultra 5G",
-    price: 74999,
-    originalPrice: 134999,
-    discount: 44,
-    rating: 4.5,
-    reviews: 28431,
-    image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop&q=80",
-    category: "Mobiles",
-    brand: "Samsung",
-    badge: "Flipkart Special",
-    description: "The Samsung Galaxy S24 Ultra with S-Pen, AI features, and 200MP camera system.",
-    highlights: ["200MP Main Camera", "5000mAh Battery", "Snapdragon 8 Gen 3", "6.8 inch QHD+ Display"],
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Apple iPhone 15 Pro Max 256GB",
-    price: 134900,
-    originalPrice: 159900,
-    discount: 16,
-    rating: 4.6,
-    reviews: 42103,
-    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=400&fit=crop&q=80",
-    category: "Mobiles",
-    brand: "Apple",
-    badge: "Top Rated",
-    description: "Apple iPhone 15 Pro Max with Titanium design and A17 Pro chip.",
-    highlights: ["A17 Pro Chip", "48MP Main Camera", "Titanium Frame", "USB-C Connector"],
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Sony WH-1000XM5 Wireless Headphones",
-    price: 24990,
-    originalPrice: 34990,
-    discount: 29,
-    rating: 4.7,
-    reviews: 15824,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&q=80",
-    category: "Electronics",
-    brand: "Sony",
-    badge: "Best Seller",
-    description: "Industry-leading noise cancellation with exceptional sound quality.",
-    highlights: ["30Hr Battery Life", "ANC Technology", "LDAC Hi-Res Audio", "Multipoint Connection"],
-    inStock: true,
-  },
-  {
-    id: 4,
-    name: "Apple MacBook Air M2 13-inch",
-    price: 99900,
-    originalPrice: 119900,
-    discount: 17,
-    rating: 4.8,
-    reviews: 8932,
-    image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400&h=400&fit=crop&q=80",
-    category: "Laptops",
-    brand: "Apple",
-    badge: "Trending",
-    description: "MacBook Air with M2 chip — thin, light, and blazing fast.",
-    highlights: ["Apple M2 Chip", "18Hr Battery", "8GB Unified Memory", "13.6-inch Liquid Retina"],
-    inStock: true,
-  },
-  {
-    id: 5,
-    name: "Nike Air Max 270 Running Shoes",
-    price: 8999,
-    originalPrice: 12995,
-    discount: 31,
-    rating: 4.3,
-    reviews: 7621,
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop&q=80",
-    category: "Footwear",
-    brand: "Nike",
-    description: "Nike Air Max 270 with the biggest heel Air unit yet.",
-    highlights: ["Max Air 270 Unit", "Mesh Upper", "Foam Midsole", "Rubber Outsole"],
-    inStock: true,
-  },
-  {
-    id: 6,
-    name: "LG 55-inch 4K OLED TV",
-    price: 89990,
-    originalPrice: 149990,
-    discount: 40,
-    rating: 4.6,
-    reviews: 3241,
-    image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=400&fit=crop&q=80",
-    category: "TVs",
-    brand: "LG",
-    badge: "Great Deal",
-    description: "LG 55-inch OLED TV with perfect blacks and stunning colors.",
-    highlights: ["OLED Panel", "4K Resolution", "Dolby Vision IQ", "WebOS Smart TV"],
-    inStock: true,
-  },
-  {
-    id: 7,
-    name: "Dyson V15 Detect Cordless Vacuum",
-    price: 52900,
-    originalPrice: 64900,
-    discount: 18,
-    rating: 4.5,
-    reviews: 2187,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop&q=80",
-    category: "Home",
-    brand: "Dyson",
-    description: "Dyson V15 Detect with laser dust detection technology.",
-    highlights: ["Laser Detect Technology", "60min Runtime", "HEPA Filtration", "LCD Screen"],
-    inStock: true,
-  },
-  {
-    id: 8,
-    name: "iPad Air 5th Gen 10.9-inch",
-    price: 54900,
-    originalPrice: 69900,
-    discount: 21,
-    rating: 4.7,
-    reviews: 11302,
-    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop&q=80",
-    category: "Tablets",
-    brand: "Apple",
-    description: "iPad Air with M1 chip, stunning 10.9-inch display, and 5G support.",
-    highlights: ["Apple M1 Chip", "10.9-inch Liquid Retina", "5G Support", "USB-C Connector"],
-    inStock: true,
-  },
-  {
-    id: 9,
-    name: "Instant Pot Duo 7-in-1 Electric Pressure Cooker",
-    price: 6999,
-    originalPrice: 14999,
-    discount: 53,
-    rating: 4.4,
-    reviews: 19432,
-    image: "https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&h=400&fit=crop&q=80",
-    category: "Kitchen",
-    brand: "Instant Pot",
-    badge: "Deal of the Day",
-    description: "7-in-1 multi-use programmable pressure cooker, slow cooker, rice cooker and more.",
-    highlights: ["7 Functions in 1", "6L Capacity", "14 Smart Programs", "Dishwasher Safe"],
-    inStock: true,
-  },
-  {
-    id: 10,
-    name: "Bose QuietComfort Earbuds II",
-    price: 21900,
-    originalPrice: 29900,
-    discount: 27,
-    rating: 4.4,
-    reviews: 5821,
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop&q=80",
-    category: "Electronics",
-    brand: "Bose",
-    description: "Bose QuietComfort Earbuds II with world-class noise cancellation.",
-    highlights: ["CustomTune Technology", "6hr Battery", "IPX4 Water Resistant", "Multipoint Connection"],
-    inStock: true,
-  },
-  {
-    id: 11,
-    name: "Dell XPS 15 Laptop Core i7",
-    price: 149999,
-    originalPrice: 189999,
-    discount: 21,
-    rating: 4.5,
-    reviews: 4213,
-    image: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400&h=400&fit=crop&q=80",
-    category: "Laptops",
-    brand: "Dell",
-    badge: "Top Pick",
-    description: "Dell XPS 15 with OLED touch display, Intel Core i7 and RTX 4060.",
-    highlights: ["Intel Core i7-13700H", "32GB DDR5 RAM", "15.6 OLED Touch", "RTX 4060 GPU"],
-    inStock: true,
-  },
-  {
-    id: 12,
-    name: "Canon EOS R50 Mirrorless Camera",
-    price: 59990,
-    originalPrice: 79990,
-    discount: 25,
-    rating: 4.6,
-    reviews: 2134,
-    image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=400&fit=crop&q=80",
-    category: "Cameras",
-    brand: "Canon",
-    description: "Canon EOS R50 compact mirrorless camera perfect for beginners and content creators.",
-    highlights: ["24.2MP CMOS Sensor", "4K Video", "Subject Detection AF", "Vari-angle LCD"],
-    inStock: false,
-  },
+// ─── FASHION & COSMETICS PRODUCTS (₹100–₹500) ───────────────────────────────
+
+const fashionCosmetics: Product[] = [
+  // ── KURTAS & SUITS ──
+  { id: 101, name: "Libas Women Floral Printed Kurta", price: 349, originalPrice: 999, discount: 65, rating: 4.2, reviews: 18320, image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Libas", badge: "Best Seller", description: "Beautiful floral printed anarkali kurta with embroidered neck.", highlights: ["Pure Cotton", "Machine Washable", "Festive Wear", "Available in Multiple Colors"], inStock: true, sizes: ["XS","S","M","L","XL","XXL"], colors: ["Blue","Pink","Yellow"] },
+  { id: 102, name: "Biba Women Straight Kurta", price: 429, originalPrice: 1299, discount: 67, rating: 4.3, reviews: 12540, image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Biba", badge: "Trending", description: "Elegant straight cut kurta with beautiful block print design.", highlights: ["Rayon Fabric", "Block Print", "Casual Wear", "Light Weight"], inStock: true, sizes: ["S","M","L","XL","XXL"], colors: ["Red","Green","Orange"] },
+  { id: 103, name: "W Women Embroidered A-Line Kurta", price: 399, originalPrice: 1199, discount: 67, rating: 4.4, reviews: 9870, image: "https://images.unsplash.com/photo-1594938298603-c8148c4b4a1a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "W", description: "Stylish A-line kurta with beautiful embroidery work.", highlights: ["Poly Blend", "A-Line Cut", "Embroidered Neck", "Party Wear"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Teal","Navy","Maroon"] },
+  { id: 104, name: "Global Desi Printed Anarkali Kurta", price: 299, originalPrice: 899, discount: 67, rating: 4.1, reviews: 7654, image: "https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Global Desi", badge: "Deal of Day", description: "Graceful anarkali kurta with ethnic prints.", highlights: ["Georgette Fabric", "Anarkali Style", "Ethnic Print", "Festive"], inStock: true, sizes: ["S","M","L","XL"], colors: ["Peach","Purple","Mustard"] },
+  { id: 105, name: "Sangria Ethnic Motifs Kurta Set", price: 479, originalPrice: 1499, discount: 68, rating: 4.5, reviews: 15230, image: "https://images.unsplash.com/photo-1537832816519-689ad163238b?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Sangria", badge: "Top Rated", description: "Elegant 3-piece kurta set with dupatta for festive occasions.", highlights: ["3-Piece Set", "With Dupatta", "Festive Wear", "Straight Cut"], inStock: true, sizes: ["S","M","L","XL","XXL"], colors: ["Pink","Blue","Green"] },
+  { id: 106, name: "Janasya Women Cotton Straight Kurta", price: 249, originalPrice: 699, discount: 64, rating: 4.0, reviews: 6320, image: "https://images.unsplash.com/photo-1599839619230-c4b8e8928617?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Janasya", description: "Comfortable everyday cotton kurta with ethnic prints.", highlights: ["100% Cotton", "Daily Wear", "Printed", "Comfortable Fit"], inStock: true, sizes: ["S","M","L","XL","XXL","XXXL"], colors: ["White","Sky Blue","Lavender"] },
+  { id: 107, name: "Aurelia Women Woven Design Kurta", price: 389, originalPrice: 1099, discount: 65, rating: 4.3, reviews: 11230, image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Aurelia", description: "Elegant kurta with traditional weave pattern.", highlights: ["Silk Blend", "Woven Design", "Party Ready", "Elegant"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Gold","Silver","Bronze"] },
+  { id: 108, name: "Imara Women Bandhani Print Kurta", price: 319, originalPrice: 949, discount: 66, rating: 4.2, reviews: 8450, image: "https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Kurtas & Suits", brand: "Imara", description: "Traditional bandhani print kurta with mirror work detailing.", highlights: ["Bandhani Print", "Mirror Work", "Rajasthani Art", "Festive"], inStock: true, sizes: ["S","M","L","XL"], colors: ["Orange","Red","Green"] },
+
+  // ── SAREES ──
+  { id: 111, name: "Sudarshan Silk Embroidered Saree", price: 499, originalPrice: 1499, discount: 67, rating: 4.5, reviews: 22140, image: "https://images.unsplash.com/photo-1610189000500-3bb86d8b7cb7?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sarees", brand: "Sudarshan", badge: "Best Seller", description: "Beautiful embroidered saree with contrast blouse piece.", highlights: ["Art Silk", "Embroidered", "Blouse Piece Included", "Party Wear"], inStock: true, colors: ["Red","Blue","Green","Pink"] },
+  { id: 112, name: "Pothys Banarasi Woven Saree", price: 449, originalPrice: 1299, discount: 65, rating: 4.4, reviews: 14320, image: "https://images.unsplash.com/photo-1605217613423-0eed53d3702b?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sarees", brand: "Pothys", description: "Traditional Banarasi weave saree with zari border.", highlights: ["Banarasi Silk", "Zari Border", "Traditional", "Wedding"], inStock: true, colors: ["Yellow","Purple","Maroon"] },
+  { id: 113, name: "Mitera Floral Printed Chiffon Saree", price: 349, originalPrice: 999, discount: 65, rating: 4.1, reviews: 7850, image: "https://images.unsplash.com/photo-1594840471776-f65cdf5e7e1a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sarees", brand: "Mitera", description: "Light and flowy chiffon saree with beautiful floral prints.", highlights: ["Chiffon Fabric", "Floral Print", "Daily Wear", "Easy Drape"], inStock: true, colors: ["Sky Blue","Peach","Mint"] },
+  { id: 114, name: "Triveni Cotton Handloom Saree", price: 299, originalPrice: 799, discount: 63, rating: 4.3, reviews: 9230, image: "https://images.unsplash.com/photo-1596463059283-da257325bab8?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sarees", brand: "Triveni", badge: "Handloom", description: "Authentic handloom cotton saree with traditional border.", highlights: ["Handloom Cotton", "Traditional Border", "Eco-Friendly", "Breathable"], inStock: true, colors: ["White","Cream","Beige"] },
+  { id: 115, name: "Vastranand Georgette Printed Saree", price: 379, originalPrice: 1099, discount: 66, rating: 4.2, reviews: 6540, image: "https://images.unsplash.com/photo-1571786256017-aee7a0c009b6?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sarees", brand: "Vastranand", description: "Elegant georgette saree with digital print and lace border.", highlights: ["Georgette", "Digital Print", "Lace Border", "Party Wear"], inStock: true, colors: ["Royal Blue","Pink","Orange"] },
+
+  // ── TOPS & TEES ──
+  { id: 121, name: "ONLY Women Off-Shoulder Top", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 16780, image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "ONLY", badge: "Trending", description: "Trendy off-shoulder top perfect for casual outings.", highlights: ["Polyester Blend", "Off Shoulder", "Regular Fit", "Party Wear"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["White","Black","Red"] },
+  { id: 122, name: "Vero Moda Women Floral Print Top", price: 349, originalPrice: 999, discount: 65, rating: 4.4, reviews: 13240, image: "https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "Vero Moda", description: "Pretty floral print top with puff sleeves.", highlights: ["Woven Fabric", "Puff Sleeves", "Floral Print", "Casual Wear"], inStock: true, sizes: ["XS","S","M","L"], colors: ["Pink","Yellow","Blue"] },
+  { id: 123, name: "H&M Women Oversized T-Shirt", price: 199, originalPrice: 599, discount: 67, rating: 4.2, reviews: 21540, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "H&M", badge: "Best Seller", description: "Comfortable oversized t-shirt for a casual relaxed look.", highlights: ["100% Cotton", "Oversized Fit", "Ribbed Collar", "Machine Wash"], inStock: true, sizes: ["XS","S","M","L","XL","XXL"], colors: ["White","Black","Grey","Pink"] },
+  { id: 124, name: "Zara Women Ribbed Knit Top", price: 299, originalPrice: 849, discount: 65, rating: 4.5, reviews: 9870, image: "https://images.unsplash.com/photo-1551163943-3f6a855d1153?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "Zara", description: "Chic ribbed knit top, perfect for layering.", highlights: ["Viscose Blend", "Ribbed Knit", "Fitted", "Versatile"], inStock: true, sizes: ["XS","S","M","L"], colors: ["Beige","White","Olive"] },
+  { id: 125, name: "Pepe Jeans Women Crop Top", price: 249, originalPrice: 799, discount: 69, rating: 4.1, reviews: 7230, image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "Pepe Jeans", description: "Stylish crop top with embroidered logo detail.", highlights: ["Cotton Blend", "Crop Length", "Casual", "Regular Fit"], inStock: true, sizes: ["S","M","L","XL"], colors: ["White","Light Blue","Black"] },
+  { id: 126, name: "Roadster Women Printed Tee", price: 179, originalPrice: 499, discount: 64, rating: 4.0, reviews: 5640, image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "Roadster", description: "Casual printed tee with fun graphic design.", highlights: ["Cotton Jersey", "Graphic Print", "Round Neck", "Everyday Wear"], inStock: true, sizes: ["XS","S","M","L","XL","XXL"], colors: ["White","Navy","Mustard"] },
+  { id: 127, name: "Puma Women's Training Tee", price: 299, originalPrice: 849, discount: 65, rating: 4.3, reviews: 8760, image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Tops & Tees", brand: "Puma", badge: "Sport", description: "Moisture-wicking training tee for active women.", highlights: ["dryCELL Technology", "Quick Dry", "Stretchy", "Sport Fit"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Black","Pink","Blue"] },
+
+  // ── JEANS & TROUSERS ──
+  { id: 131, name: "Levis Women 311 Shaping Skinny Jeans", price: 499, originalPrice: 1799, discount: 72, rating: 4.5, reviews: 31240, image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jeans", brand: "Levis", badge: "Top Seller", description: "Classic Levi's shaping skinny jeans with great stretch and fit.", highlights: ["73% Cotton", "Shaping Technology", "5-Pocket Style", "Machine Washable"], inStock: true, sizes: ["26","28","30","32","34","36"], colors: ["Dark Blue","Light Blue","Black"] },
+  { id: 132, name: "Wrangler Women Straight Fit Jeans", price: 399, originalPrice: 1299, discount: 69, rating: 4.3, reviews: 15670, image: "https://images.unsplash.com/photo-1604176354204-9268737828e4?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jeans", brand: "Wrangler", description: "Classic straight fit jeans with comfortable waistband.", highlights: ["Denim", "Straight Fit", "5 Pockets", "Durable"], inStock: true, sizes: ["28","30","32","34"], colors: ["Blue","Black","Grey"] },
+  { id: 133, name: "Mango Women Wide Leg Trousers", price: 449, originalPrice: 1499, discount: 70, rating: 4.4, reviews: 8920, image: "https://images.unsplash.com/photo-1594938298603-c8148c4b4a1a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Trousers", brand: "Mango", badge: "Trending", description: "Chic wide leg trousers perfect for office and casual wear.", highlights: ["Poly Blend", "Wide Leg", "High Waist", "Versatile"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Beige","Black","Olive"] },
+  { id: 134, name: "AND Women Palazzo Pants", price: 299, originalPrice: 999, discount: 70, rating: 4.2, reviews: 12380, image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Trousers", brand: "AND", description: "Flowy palazzo pants with beautiful print pattern.", highlights: ["Rayon", "Palazzo Style", "Printed", "Comfortable"], inStock: true, sizes: ["S","M","L","XL","XXL"], colors: ["Blue","Pink","Black"] },
+  { id: 135, name: "FabAlley Women Flared Trousers", price: 349, originalPrice: 999, discount: 65, rating: 4.3, reviews: 6540, image: "https://images.unsplash.com/photo-1592301933927-35b597393c0a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Trousers", brand: "FabAlley", description: "Stylish flared trousers with side pockets.", highlights: ["Crepe Fabric", "Flared Bottom", "High Rise", "Formal"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Navy","Beige","Maroon"] },
+
+  // ── DRESSES ──
+  { id: 141, name: "ONLY Women Floral Midi Dress", price: 449, originalPrice: 1499, discount: 70, rating: 4.4, reviews: 18920, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "ONLY", badge: "Best Seller", description: "Beautiful floral midi dress with V-neck and puff sleeves.", highlights: ["Woven Fabric", "V-Neck", "Puff Sleeves", "Midi Length"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Pink","Blue","Green"] },
+  { id: 142, name: "Vero Moda Women Wrap Dress", price: 399, originalPrice: 1199, discount: 67, rating: 4.5, reviews: 14230, image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "Vero Moda", badge: "Trending", description: "Classic wrap dress with flattering silhouette.", highlights: ["Woven", "Wrap Style", "Adjustable Tie", "Versatile"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Red","Navy","Black"] },
+  { id: 143, name: "H&M Women Mini Bodycon Dress", price: 299, originalPrice: 899, discount: 67, rating: 4.2, reviews: 9870, image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "H&M", description: "Chic bodycon mini dress for party nights.", highlights: ["Stretch Fabric", "Bodycon Fit", "Mini Length", "Party"], inStock: true, sizes: ["XS","S","M","L"], colors: ["Black","Red","White"] },
+  { id: 144, name: "Zara Women Linen Shirt Dress", price: 479, originalPrice: 1599, discount: 70, rating: 4.4, reviews: 7650, image: "https://images.unsplash.com/photo-1550639525-c97d455acf70?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "Zara", description: "Comfortable linen shirt dress perfect for summer days.", highlights: ["Linen Blend", "Shirt Style", "Button Down", "Casual"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["White","Beige","Sage"] },
+  { id: 145, name: "FabAlley Women Smocked Sundress", price: 349, originalPrice: 999, discount: 65, rating: 4.3, reviews: 8430, image: "https://images.unsplash.com/photo-1581338834647-b0fb40704e21?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "FabAlley", description: "Cute smocked sundress with floral print.", highlights: ["Cotton Blend", "Smocked Top", "Floral Print", "Summer Wear"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Yellow","Pink","Blue"] },
+  { id: 146, name: "Mango Women Slip Dress", price: 429, originalPrice: 1299, discount: 67, rating: 4.1, reviews: 5670, image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "Mango", description: "Elegant satin slip dress for evenings out.", highlights: ["Satin Finish", "Slip Style", "Adjustable Straps", "Evening"], inStock: true, sizes: ["XS","S","M","L"], colors: ["Champagne","Black","Blush"] },
+  { id: 147, name: "BeIndi Women Anarkali Dress", price: 389, originalPrice: 1199, discount: 68, rating: 4.4, reviews: 11320, image: "https://images.unsplash.com/photo-1601424032001-41b45a1e4ef8?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Dresses", brand: "BeIndi", badge: "Ethnic", description: "Beautiful anarkali style ethnic dress with embroidery.", highlights: ["Poly Silk", "Anarkali Style", "Embroidered", "Festive"], inStock: true, sizes: ["S","M","L","XL","XXL"], colors: ["Red","Blue","Green","Purple"] },
+
+  // ── LEHENGAS & ETHNIC ──
+  { id: 151, name: "Inddus Women Embroidered Lehenga Choli", price: 499, originalPrice: 1999, discount: 75, rating: 4.5, reviews: 23670, image: "https://images.unsplash.com/photo-1602752175013-10815a5f5a77?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Ethnic Wear", brand: "Inddus", badge: "Wedding Special", description: "Gorgeous embroidered lehenga choli set for weddings.", highlights: ["Semi-Stitched", "Embroidered", "With Dupatta", "Festive"], inStock: true, sizes: ["S","M","L","XL"], colors: ["Red","Pink","Blue","Green"] },
+  { id: 152, name: "Ethnic Junction Chaniya Choli", price: 449, originalPrice: 1499, discount: 70, rating: 4.3, reviews: 14230, image: "https://images.unsplash.com/photo-1610189000500-3bb86d8b7cb7?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Ethnic Wear", brand: "Ethnic Junction", description: "Traditional chaniya choli with mirror work embroidery.", highlights: ["Mirror Work", "Garba/Navratri", "3-Piece Set", "Festive"], inStock: true, sizes: ["S","M","L","XL","XXL"], colors: ["Red","Orange","Purple"] },
+  { id: 153, name: "KALKI Fashion Silk Blouse", price: 249, originalPrice: 749, discount: 67, rating: 4.2, reviews: 8760, image: "https://images.unsplash.com/photo-1613178090777-d77c3fe0f66d?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Ethnic Wear", brand: "KALKI", description: "Traditional silk blouse with designer neck pattern.", highlights: ["Art Silk", "Designer Neck", "Back Hook", "Saree Blouse"], inStock: true, sizes: ["32","34","36","38","40","42"], colors: ["Gold","Red","Green"] },
+
+  // ── FOOTWEAR ──
+  { id: 161, name: "Bata Women Block Heel Sandals", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 19870, image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Bata", badge: "Best Seller", description: "Comfortable block heel sandals for everyday wear.", highlights: ["Block Heel", "Padded Footbed", "Adjustable Strap", "Casual"], inStock: true, sizes: ["36","37","38","39","40","41"], colors: ["Black","Brown","Nude"] },
+  { id: 162, name: "Metro Women Ballerina Flats", price: 249, originalPrice: 799, discount: 69, rating: 4.4, reviews: 24320, image: "https://images.unsplash.com/photo-1518049362265-d5b2a6467637?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Metro", badge: "Most Loved", description: "Classic ballerina flats with cushioned insole.", highlights: ["Faux Leather", "Round Toe", "Cushioned Insole", "Daily Wear"], inStock: true, sizes: ["35","36","37","38","39","40","41"], colors: ["Black","Pink","Gold","White"] },
+  { id: 163, name: "Inc.5 Women Kitten Heel Pumps", price: 399, originalPrice: 1299, discount: 69, rating: 4.2, reviews: 11230, image: "https://images.unsplash.com/photo-1515347619252-60a4bf4fff4f?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Inc.5", description: "Elegant kitten heel pumps for office and formal wear.", highlights: ["Kitten Heel", "Pointed Toe", "Padded Insole", "Formal"], inStock: true, sizes: ["35","36","37","38","39","40"], colors: ["Black","Nude","Red"] },
+  { id: 164, name: "Catwalk Women Wedge Heels", price: 349, originalPrice: 999, discount: 65, rating: 4.1, reviews: 8740, image: "https://images.unsplash.com/photo-1484568927353-b7770a842acd?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Catwalk", description: "Trendy wedge heels with ankle strap.", highlights: ["Wedge Heel", "Ankle Strap", "Platform Base", "Party Wear"], inStock: true, sizes: ["36","37","38","39","40"], colors: ["Brown","Black","Gold"] },
+  { id: 165, name: "Lavie Women Embellished Flats", price: 199, originalPrice: 599, discount: 67, rating: 4.3, reviews: 15670, image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Lavie", description: "Beautiful embellished flats with stone work.", highlights: ["Synthetic", "Embellished", "Slip-On", "Festive"], inStock: true, sizes: ["36","37","38","39","40","41"], colors: ["Gold","Silver","Copper"] },
+  { id: 166, name: "Red Tape Women Sports Shoes", price: 399, originalPrice: 1199, discount: 67, rating: 4.4, reviews: 13240, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Red Tape", description: "Comfortable sports shoes for daily workout.", highlights: ["EVA Sole", "Mesh Upper", "Lace-Up", "Breathable"], inStock: true, sizes: ["36","37","38","39","40","41"], colors: ["White","Pink","Black"] },
+  { id: 167, name: "Aldo Women Heeled Boots", price: 499, originalPrice: 1799, discount: 72, rating: 4.5, reviews: 7830, image: "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Footwear", brand: "Aldo", badge: "Premium", description: "Sleek heeled ankle boots for a chic look.", highlights: ["Faux Leather", "Block Heel", "Zip Closure", "Ankle Length"], inStock: true, sizes: ["36","37","38","39","40"], colors: ["Black","Brown","Taupe"] },
+
+  // ── HANDBAGS & ACCESSORIES ──
+  { id: 171, name: "Caprese Women Tote Bag", price: 479, originalPrice: 1499, discount: 68, rating: 4.5, reviews: 27630, image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Handbags", brand: "Caprese", badge: "Best Seller", description: "Large structured tote bag perfect for work and travel.", highlights: ["Faux Leather", "Multiple Pockets", "Zipper Closure", "Shoulder Bag"], inStock: true, colors: ["Black","Tan","Red","Navy"] },
+  { id: 172, name: "Lavie Women Sling Bag", price: 349, originalPrice: 999, discount: 65, rating: 4.3, reviews: 19870, image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Handbags", brand: "Lavie", badge: "Trending", description: "Compact sling bag with adjustable strap.", highlights: ["PU Leather", "Adjustable Strap", "Multiple Compartments", "Compact"], inStock: true, colors: ["Black","Pink","Mustard","Blue"] },
+  { id: 173, name: "Hidesign Women Leather Wallet", price: 299, originalPrice: 899, discount: 67, rating: 4.6, reviews: 31240, image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Accessories", brand: "Hidesign", badge: "Genuine Leather", description: "Slim genuine leather wallet with card slots.", highlights: ["Genuine Leather", "8 Card Slots", "Coin Pocket", "RFID Block"], inStock: true, colors: ["Brown","Black","Tan"] },
+  { id: 174, name: "Baggit Women Backpack", price: 399, originalPrice: 1199, discount: 67, rating: 4.4, reviews: 14560, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Handbags", brand: "Baggit", description: "Stylish backpack with laptop sleeve.", highlights: ["Vegan Leather", "Laptop Compartment", "USB Port", "Spacious"], inStock: true, colors: ["Black","Grey","Rose"] },
+  { id: 175, name: "Accessorize Women Clutch Bag", price: 249, originalPrice: 799, discount: 69, rating: 4.2, reviews: 8930, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Handbags", brand: "Accessorize", description: "Sequin embellished clutch perfect for evenings.", highlights: ["Sequin Work", "Magnetic Clasp", "Chain Strap", "Party Bag"], inStock: true, colors: ["Gold","Silver","Rose Gold"] },
+
+  // ── JEWELLERY ──
+  { id: 181, name: "Zaveri Pearls Gold Plated Necklace Set", price: 299, originalPrice: 999, discount: 70, rating: 4.4, reviews: 32540, image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jewellery", brand: "Zaveri Pearls", badge: "Best Seller", description: "Traditional gold-plated necklace set with earrings.", highlights: ["Gold Plated", "With Earrings", "Hypoallergenic", "Festive Wear"], inStock: true, colors: ["Gold"] },
+  { id: 182, name: "Shining Diva Fashion Bangles Set", price: 149, originalPrice: 499, discount: 70, rating: 4.3, reviews: 41230, image: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jewellery", brand: "Shining Diva", badge: "Top Pick", description: "Traditional bangle set of 12 pieces for festive occasions.", highlights: ["Set of 12", "Brass Metal", "Gold Plated", "Traditional"], inStock: true, colors: ["Gold","Silver","Rose Gold"] },
+  { id: 183, name: "Fabindia Silver Oxidised Earrings", price: 199, originalPrice: 599, discount: 67, rating: 4.5, reviews: 18760, image: "https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jewellery", brand: "Fabindia", description: "Handcrafted silver oxidised earrings with tribal motifs.", highlights: ["Silver Plated", "Oxidised Finish", "Handcrafted", "Jhumka Style"], inStock: true, colors: ["Silver"] },
+  { id: 184, name: "Curio Cottage Boho Bracelet Set", price: 199, originalPrice: 599, discount: 67, rating: 4.2, reviews: 12430, image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jewellery", brand: "Curio Cottage", description: "Bohemian style bracelet set with beads and charms.", highlights: ["Set of 6", "Beaded", "Adjustable", "Boho Style"], inStock: true, colors: ["Multi","Blue","Pink"] },
+  { id: 185, name: "Tistabene Women Rings Set", price: 249, originalPrice: 799, discount: 69, rating: 4.3, reviews: 9870, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Jewellery", brand: "Tistabene", description: "Elegant stackable rings set for a boho look.", highlights: ["Set of 5", "Adjustable", "Stone Studded", "Stackable"], inStock: true, colors: ["Gold","Silver"] },
+
+  // ── SCARVES & STOLES ──
+  { id: 191, name: "FabIndia Cotton Block Print Stole", price: 249, originalPrice: 749, discount: 67, rating: 4.5, reviews: 14320, image: "https://images.unsplash.com/photo-1601924351433-3e41c3dd6bbc?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Scarves & Stoles", brand: "FabIndia", badge: "Artisan", description: "Handblock printed cotton stole with natural dyes.", highlights: ["100% Cotton", "Hand Block Print", "Natural Dyes", "Versatile"], inStock: true, colors: ["Blue","Red","Green","Orange"] },
+  { id: 192, name: "Pashmina Premium Cashmere Shawl", price: 499, originalPrice: 1799, discount: 72, rating: 4.7, reviews: 8930, image: "https://images.unsplash.com/photo-1531237570571-d8c0c68f1c57?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Scarves & Stoles", brand: "Pashmina", badge: "Premium", description: "Soft and warm cashmere-wool blend shawl.", highlights: ["Cashmere Blend", "Soft Touch", "Warm", "Winter Essential"], inStock: true, colors: ["Cream","Grey","Maroon"] },
+  { id: 193, name: "Satrani Women Chiffon Dupatta", price: 149, originalPrice: 449, discount: 67, rating: 4.2, reviews: 11230, image: "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Scarves & Stoles", brand: "Satrani", description: "Light chiffon dupatta with sequin border.", highlights: ["Chiffon", "Sequin Border", "Kurta Matching", "Ethnic"], inStock: true, colors: ["Pink","Blue","Yellow","White"] },
+
+  // ─── LADIES COSMETICS ────────────────────────────────────────────────────────
+
+  // ── LIPSTICKS ──
+  { id: 201, name: "Lakme 9to5 Primer + Matte Lipstick", price: 199, originalPrice: 599, discount: 67, rating: 4.5, reviews: 78320, image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "Lakme", badge: "Best Seller", description: "Long-lasting matte lipstick with primer formula for all-day wear.", highlights: ["8hr Stay", "Primer Formula", "Matte Finish", "No Transfer"], inStock: true, colors: ["Red","Mauve","Nude","Coral","Pink"] },
+  { id: 202, name: "Maybelline New York SuperStay Lipstick", price: 249, originalPrice: 799, discount: 69, rating: 4.4, reviews: 56740, image: "https://images.unsplash.com/photo-1586495777744-4e6af8cd0512?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "Maybelline", badge: "SuperStay", description: "Up to 16-hour wear lipstick with super-stay formula.", highlights: ["16hr Wear", "Moisturizing", "Non-Drying", "Intense Color"], inStock: true, colors: ["Red","Plum","Berry","Nude","Rose"] },
+  { id: 203, name: "L'Oreal Paris Colour Riche Moist Matte", price: 299, originalPrice: 949, discount: 68, rating: 4.3, reviews: 34560, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "L'Oreal Paris", description: "Rich moisturizing matte lipstick with Vitamin E.", highlights: ["Vitamin E", "Moist Matte", "5hr Stay", "Intense Color"], inStock: true, colors: ["Red","Pink","Coral","Nude","Burgundy"] },
+  { id: 204, name: "SUGAR Cosmetics Smudge Me Not Lipstick", price: 299, originalPrice: 899, discount: 67, rating: 4.6, reviews: 42310, image: "https://images.unsplash.com/photo-1631214500003-aa8cb1e8ddf0?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "SUGAR Cosmetics", badge: "Trending", description: "Highly pigmented liquid lipstick with smudge-proof formula.", highlights: ["Liquid Lipstick", "Smudge Proof", "Matte", "Vegan Formula"], inStock: true, colors: ["Red","Brown","Berry","Coral","Orange","Pink"] },
+  { id: 205, name: "NYX Professional Soft Matte Lip Cream", price: 349, originalPrice: 1099, discount: 68, rating: 4.5, reviews: 28940, image: "https://images.unsplash.com/photo-1625093781012-56d88c5dbda1?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "NYX Professional", badge: "Pro Choice", description: "Velvety soft matte finish lip cream that glides on smoothly.", highlights: ["Soft Matte", "Vegan", "Cruelty Free", "Comfortable Wear"], inStock: true, colors: ["Red","Monte Carlo","Amsterdam","Cannes","Stockholm"] },
+  { id: 206, name: "Colorbar Velvet Matte Lipstick", price: 249, originalPrice: 749, discount: 67, rating: 4.2, reviews: 19870, image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "Colorbar", description: "Smooth velvet matte lipstick with natural ingredients.", highlights: ["Vitamin E", "Velvet Matte", "Natural Ingredients", "8hr Wear"], inStock: true, colors: ["Nude","Pink","Red","Maroon","Orange"] },
+  { id: 207, name: "Revlon Super Lustrous Lipstick", price: 299, originalPrice: 899, discount: 67, rating: 4.4, reviews: 31240, image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Lipstick", brand: "Revlon", description: "Classic creme lipstick with intense color payoff.", highlights: ["Creme Finish", "Intense Color", "Moisturizing", "Vitamin E & Aloe"], inStock: true, colors: ["Wine","Plum","Raspberry","Coral","Nude"] },
+
+  // ── FOUNDATIONS & FACE ──
+  { id: 211, name: "Lakme 9to5 Weightless Mousse Foundation", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 45670, image: "https://images.unsplash.com/photo-1631214500194-e8439dc06fbd?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Foundation", brand: "Lakme", badge: "Best Seller", description: "Lightweight mousse foundation with buildable coverage.", highlights: ["SPF 8", "Mousse Texture", "8hr Stay", "Covers Blemishes"], inStock: true, colors: ["Ivory","Beige","Rose Ivory","Honey","Caramel"] },
+  { id: 212, name: "Maybelline Fit Me Matte + Poreless Foundation", price: 349, originalPrice: 1099, discount: 68, rating: 4.4, reviews: 67890, image: "https://images.unsplash.com/photo-1580870069867-74c57ee1bb07?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Foundation", brand: "Maybelline", badge: "Top Pick", description: "Matte and poreless foundation for a flawless base.", highlights: ["Oil Control", "Pore Minimizing", "12hr Wear", "Buildable Coverage"], inStock: true, colors: ["Ivory","Shell","Sand","Warm Ivory","Natural Buff"] },
+  { id: 213, name: "L'Oreal Paris True Match Foundation", price: 399, originalPrice: 1299, discount: 69, rating: 4.5, reviews: 38920, image: "https://images.unsplash.com/photo-1631214499359-dc6e8e1d0a37?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Foundation", brand: "L'Oreal Paris", description: "Skin-perfecting liquid foundation that matches your skin tone.", highlights: ["SPF 17", "Skin Perfecting", "Natural Finish", "All Skin Types"], inStock: true, colors: ["Ivory","Vanilla","Golden Beige","Sand","Cappuccino"] },
+  { id: 214, name: "SUGAR Face Fwd Liquid Foundation", price: 349, originalPrice: 1099, discount: 68, rating: 4.4, reviews: 23450, image: "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Foundation", brand: "SUGAR Cosmetics", badge: "Vegan", description: "Buildable coverage liquid foundation with natural finish.", highlights: ["Vegan", "Paraben Free", "Natural Finish", "Buildable Coverage"], inStock: true, colors: ["Pearl","Porcelain","Porcelain Bisque","Honey","Warm Almond"] },
+  { id: 215, name: "Colorbar Flawless Face Primer", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 18760, image: "https://images.unsplash.com/photo-1631214499933-0a29a879b17c?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Foundation", brand: "Colorbar", description: "Silky smooth primer for flawless makeup application.", highlights: ["Pore Minimizing", "Long-Lasting", "Silky Finish", "All Skin Types"], inStock: true },
+
+  // ── KAJAL & EYE MAKEUP ──
+  { id: 221, name: "Lakme Eyeconic Kajal Twin Pack", price: 149, originalPrice: 449, discount: 67, rating: 4.6, reviews: 92340, image: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Kajal & Eyeliner", brand: "Lakme", badge: "India's #1", description: "Intensely black smudge-proof kajal that lasts all day.", highlights: ["12hr Wear", "Waterproof", "Smudge-Proof", "Intense Black"], inStock: true },
+  { id: 222, name: "Maybelline Colossal Kajal Black", price: 149, originalPrice: 449, discount: 67, rating: 4.5, reviews: 78640, image: "https://images.unsplash.com/photo-1512207736890-6ffed8a84e8d?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Kajal & Eyeliner", brand: "Maybelline", badge: "Best Seller", description: "Colossal kajal for bold eyes with 12-hour stay.", highlights: ["12hr Stay", "Smudge Free", "Bold Black", "Vitamin E"], inStock: true },
+  { id: 223, name: "NYX Epic Ink Liner", price: 349, originalPrice: 1099, discount: 68, rating: 4.5, reviews: 31240, image: "https://images.unsplash.com/photo-1583241475880-083f84372725?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Kajal & Eyeliner", brand: "NYX Professional", description: "Precise liquid eyeliner with brush tip for sharp lines.", highlights: ["Liquid Liner", "Brush Tip", "Waterproof", "Long-Lasting"], inStock: true },
+  { id: 224, name: "SUGAR Eye Warned Ya Kohl", price: 249, originalPrice: 799, discount: 69, rating: 4.4, reviews: 18930, image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Kajal & Eyeliner", brand: "SUGAR Cosmetics", description: "Soft kohl pencil for effortless smoky eye looks.", highlights: ["Kohl Pencil", "Smoky Eye", "Blendable", "Waterproof"], inStock: true },
+  { id: 225, name: "L'Oreal Voluminous Mascara", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 43210, image: "https://images.unsplash.com/photo-1631214499677-f3e2f2c7b33e?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Kajal & Eyeliner", brand: "L'Oreal Paris", badge: "Bestseller", description: "Volumizing mascara for dramatically thick lashes.", highlights: ["Volumizing", "No Clump", "Curved Brush", "Intense Black"], inStock: true },
+  { id: 226, name: "Revlon PhotoReady Eye Shadow", price: 249, originalPrice: 799, discount: 69, rating: 4.3, reviews: 14560, image: "https://images.unsplash.com/photo-1583241800698-e8ab01830a63?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Eye Makeup", brand: "Revlon", description: "Eye shadow palette with 8 complementary shades.", highlights: ["8 Shades", "Highly Pigmented", "Blendable", "All Day Wear"], inStock: true, colors: ["Neutrals","Smoky","Earth","Jewel"] },
+
+  // ── BLUSH, HIGHLIGHTER & CONTOUR ──
+  { id: 231, name: "SUGAR Contour Blush Duo", price: 349, originalPrice: 1099, discount: 68, rating: 4.5, reviews: 21340, image: "https://images.unsplash.com/photo-1631214500082-59ae54dbb4a1?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Blush & Highlighter", brand: "SUGAR Cosmetics", badge: "Top Seller", description: "2-in-1 contour and blush palette for sculpted cheeks.", highlights: ["2-in-1 Palette", "Blendable", "Long-Lasting", "Suitable All Skin Tones"], inStock: true },
+  { id: 232, name: "Lakme Absolute Face Stylist Blush", price: 249, originalPrice: 799, discount: 69, rating: 4.3, reviews: 18760, image: "https://images.unsplash.com/photo-1610294054810-a7dfa2ce4b68?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Blush & Highlighter", brand: "Lakme", description: "Soft powder blush for a fresh, rosy look.", highlights: ["Powder Blush", "Buildable Color", "Smooth Application", "Long Wear"], inStock: true, colors: ["Pink Blush","Peach Petal","Baby Pink","Rose"] },
+  { id: 233, name: "Colorbar Shimmer & Shine Highlighter", price: 299, originalPrice: 899, discount: 67, rating: 4.4, reviews: 12430, image: "https://images.unsplash.com/photo-1631214500270-fb4e60ab1b1f?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Blush & Highlighter", brand: "Colorbar", description: "Luminous highlighter for a dewy, glowing finish.", highlights: ["Shimmer Finish", "Buildable Glow", "Fine Particles", "All Skin Types"], inStock: true, colors: ["Gold","Rose Gold","Silver","Bronze"] },
+
+  // ── NAIL CARE ──
+  { id: 241, name: "Lakme True Wear Nail Color (Pack of 3)", price: 199, originalPrice: 599, discount: 67, rating: 4.4, reviews: 47320, image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Nail Care", brand: "Lakme", badge: "Value Pack", description: "Long-lasting nail color in vibrant shades.", highlights: ["Pack of 3", "7-Day Wear", "Quick Dry", "Chip Resistant"], inStock: true, colors: ["Reds","Pinks","Nudes","Neutrals"] },
+  { id: 242, name: "Maybelline Color Show Nail Polish", price: 99, originalPrice: 299, discount: 67, rating: 4.3, reviews: 64560, image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Nail Care", brand: "Maybelline", badge: "Value", description: "Vibrant nail polish with a smooth, glossy finish.", highlights: ["Glossy Finish", "Quick Dry", "Wide Brush", "60+ Shades"], inStock: true, colors: ["Red","Pink","Coral","Nude","Purple","Blue"] },
+  { id: 243, name: "OPI Nail Lacquer", price: 449, originalPrice: 1499, discount: 70, rating: 4.7, reviews: 23410, image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Nail Care", brand: "OPI", badge: "Premium", description: "Salon-quality nail lacquer with chip-resistant formula.", highlights: ["Chip Resistant", "ProWide Brush", "Glossy Finish", "7-Free Formula"], inStock: true },
+  { id: 244, name: "Colorbar Get the Look Nail Enamel", price: 149, originalPrice: 449, discount: 67, rating: 4.2, reviews: 18930, image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Nail Care", brand: "Colorbar", description: "Trendy nail enamel with quick-dry formula.", highlights: ["Quick Dry", "Vibrant Shades", "Easy Application", "Glossy"], inStock: true, colors: ["Neon","Pastels","Nudes","Reds"] },
+
+  // ── SKINCARE ──
+  { id: 251, name: "Lotus Herbals Safe Sun UV Screen Cream SPF 50", price: 199, originalPrice: 599, discount: 67, rating: 4.5, reviews: 58930, image: "https://images.unsplash.com/photo-1556228720-da57b7c4de4f?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Sunscreen", brand: "Lotus Herbals", badge: "Best Seller", description: "High protection sunscreen with SPF 50 for daily use.", highlights: ["SPF 50", "PA+++", "Non-Greasy", "Water Resistant"], inStock: true },
+  { id: 252, name: "Neutrogena Ultra Sheer Sunscreen SPF 50+", price: 349, originalPrice: 1099, discount: 68, rating: 4.6, reviews: 43270, image: "https://images.unsplash.com/photo-1570194065650-d99fb4ee0b4f?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Sunscreen", brand: "Neutrogena", badge: "Dermat Recommended", description: "Ultra-light sunscreen with Helioplex technology.", highlights: ["SPF 50+", "Helioplex", "Non-Comedogenic", "Ultra Light"], inStock: true },
+  { id: 253, name: "Plum Vitamin C Face Serum", price: 349, originalPrice: 999, discount: 65, rating: 4.5, reviews: 32140, image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Serums", brand: "Plum", badge: "Vegan", description: "Brightening Vitamin C serum for glowing skin.", highlights: ["15% Vitamin C", "Brightening", "Anti-Oxidant", "Vegan"], inStock: true },
+  { id: 254, name: "The Ordinary Niacinamide 10%", price: 299, originalPrice: 899, discount: 67, rating: 4.6, reviews: 54320, image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Serums", brand: "The Ordinary", badge: "Cult Fav", description: "High-strength Niacinamide serum for pores and blemishes.", highlights: ["10% Niacinamide", "1% Zinc", "Pore Minimizing", "Oil Control"], inStock: true },
+  { id: 255, name: "Himalaya Neem Face Wash", price: 119, originalPrice: 349, discount: 66, rating: 4.4, reviews: 87650, image: "https://images.unsplash.com/photo-1556228841-a3c527ebefe5?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Face Wash", brand: "Himalaya", badge: "Herbal", description: "Purifying neem face wash for clear, acne-free skin.", highlights: ["Neem Extract", "Anti-Bacterial", "Oil Control", "Dermat Tested"], inStock: true },
+  { id: 256, name: "Pond's White Beauty Cream", price: 149, originalPrice: 449, discount: 67, rating: 4.2, reviews: 62340, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Moisturizer", brand: "Pond's", description: "Brightening face cream with SPF 15 for daily use.", highlights: ["SPF 15", "Brightening", "Daily Moisturizer", "Non-Greasy"], inStock: true },
+  { id: 257, name: "Biotique Bio Cucumber Toner", price: 149, originalPrice: 449, discount: 67, rating: 4.3, reviews: 31240, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Toner", brand: "Biotique", description: "Refreshing cucumber toner for all skin types.", highlights: ["Cucumber Extract", "Pore Tightening", "Oil-Free", "Refreshing"], inStock: true },
+  { id: 258, name: "Mamaearth Vitamin C Face Moisturizer", price: 249, originalPrice: 749, discount: 67, rating: 4.5, reviews: 41230, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Moisturizer", brand: "Mamaearth", badge: "Toxin Free", description: "Daily moisturizer with Vitamin C and Turmeric.", highlights: ["Vitamin C", "Turmeric", "SPF 20", "Toxin Free"], inStock: true },
+  { id: 259, name: "Minimalist 2% Salicylic Acid Serum", price: 349, originalPrice: 1049, discount: 67, rating: 4.5, reviews: 27650, image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Serums", brand: "Minimalist", description: "Salicylic acid serum for acne-prone and oily skin.", highlights: ["2% Salicylic Acid", "Acne Fighting", "Exfoliating", "Oil Control"], inStock: true },
+
+  // ── HAIR CARE ──
+  { id: 261, name: "L'Oreal Paris Hair Expertise Shampoo", price: 199, originalPrice: 599, discount: 67, rating: 4.3, reviews: 45670, image: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Hair Care", brand: "L'Oreal Paris", badge: "Expert", description: "Nourishing shampoo with pro-keratin for silky smooth hair.", highlights: ["Pro-Keratin", "Sulfate Free", "300ml", "Color Safe"], inStock: true },
+  { id: 262, name: "Dove Intense Repair Conditioner", price: 149, originalPrice: 449, discount: 67, rating: 4.4, reviews: 63210, image: "https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Hair Care", brand: "Dove", badge: "Best Seller", description: "Deep conditioning treatment for damaged hair.", highlights: ["Nutri-Keratin Repair Actives", "250ml", "For Damaged Hair", "Smooth Result"], inStock: true },
+  { id: 263, name: "Pantene Pro-V Hair Fall Control Kit", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 39870, image: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Hair Care", brand: "Pantene", description: "Complete hair fall control system with shampoo + conditioner.", highlights: ["Combo Pack", "Pro-V Formula", "Hair Fall Control", "Keratin Repair"], inStock: true },
+  { id: 264, name: "Mamaearth Onion Hair Oil", price: 249, originalPrice: 749, discount: 67, rating: 4.5, reviews: 52340, image: "https://images.unsplash.com/photo-1559181567-c3190bba3718?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Hair Care", brand: "Mamaearth", badge: "Toxin Free", description: "Onion hair oil for hair growth and anti-hair fall.", highlights: ["Onion Extract", "Reduces Hair Fall", "Toxin Free", "150ml"], inStock: true },
+  { id: 265, name: "Biotique Coconut Milk Hair Mask", price: 199, originalPrice: 599, discount: 67, rating: 4.3, reviews: 22450, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Hair Care", brand: "Biotique", description: "Deep nourishing coconut milk hair mask for soft hair.", highlights: ["Coconut Milk", "Deep Nourishing", "200g", "All Hair Types"], inStock: true },
+
+  // ── PERFUME & BODY ──
+  { id: 271, name: "Engage W1 Perfume Spray for Women", price: 199, originalPrice: 599, discount: 67, rating: 4.4, reviews: 48320, image: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Perfumes", brand: "Engage", badge: "Best Seller", description: "Fresh floral fragrance that lasts all day.", highlights: ["150ml", "Long Lasting", "Floral Scent", "No Gas Propellant"], inStock: true },
+  { id: 272, name: "Fogg Essence Body Spray for Women", price: 149, originalPrice: 449, discount: 67, rating: 4.3, reviews: 72340, image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Perfumes", brand: "Fogg", badge: "Value", description: "Long-lasting body spray with no gas, more perfume.", highlights: ["No Gas", "More Perfume", "150ml", "Long Lasting"], inStock: true },
+  { id: 273, name: "Yardley London English Lavender EDT", price: 299, originalPrice: 899, discount: 67, rating: 4.4, reviews: 23410, image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Perfumes", brand: "Yardley London", badge: "Classic", description: "Classic lavender eau de toilette for a refreshing scent.", highlights: ["EDT", "50ml", "Lavender", "Long Lasting"], inStock: true },
+  { id: 274, name: "Vaseline Intensive Care Body Lotion", price: 149, originalPrice: 449, discount: 67, rating: 4.5, reviews: 54320, image: "https://images.unsplash.com/photo-1556228841-a3c527ebefe5?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Body Care", brand: "Vaseline", badge: "Dermat Tested", description: "Deep moisture body lotion for dry skin.", highlights: ["Micro-Droplets of Vaseline", "24hr Moisture", "400ml", "Dermat Tested"], inStock: true },
+  { id: 275, name: "The Body Shop Shea Body Butter", price: 399, originalPrice: 1299, discount: 69, rating: 4.6, reviews: 19870, image: "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Body Care", brand: "The Body Shop", badge: "Community Trade", description: "Rich shea body butter for deep nourishment.", highlights: ["Community Trade Shea", "48hr Moisture", "200ml", "Vegan"], inStock: true },
+
+  // ── MAKEUP TOOLS ──
+  { id: 281, name: "Real Techniques Makeup Brush Set", price: 399, originalPrice: 1299, discount: 69, rating: 4.6, reviews: 21340, image: "https://images.unsplash.com/photo-1591370874773-6702e8f12fd8?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Makeup Tools", brand: "Real Techniques", badge: "Pro Choice", description: "Complete 5-piece makeup brush set for flawless application.", highlights: ["5 Piece Set", "Synthetic Bristles", "Aluminum Ferrule", "Vegan"], inStock: true },
+  { id: 282, name: "Wet n Wild Beauty Blender Sponge", price: 149, originalPrice: 449, discount: 67, rating: 4.3, reviews: 34210, image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Makeup Tools", brand: "Wet n Wild", description: "Flawless blending sponge for liquid and powder makeup.", highlights: ["Latex Free", "Use Wet or Dry", "Seamless Blending", "Reusable"], inStock: true },
+  { id: 283, name: "Sigma Beauty Kabuki Brush", price: 299, originalPrice: 899, discount: 67, rating: 4.5, reviews: 14560, image: "https://images.unsplash.com/photo-1591370874773-6702e8f12fd8?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Makeup Tools", brand: "Sigma Beauty", description: "Dense kabuki brush for powder and blush application.", highlights: ["Vegan Bristles", "Dense Head", "Powder Blush", "Professional Grade"], inStock: true },
+  { id: 284, name: "Faces Canada Lash Curler & Mascara Duo", price: 199, originalPrice: 599, discount: 67, rating: 4.2, reviews: 11230, image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Makeup Tools", brand: "Faces Canada", description: "Eyelash curler with bonus mascara for dramatic lashes.", highlights: ["Rubber Refill Pad", "Ergonomic Design", "With Mascara", "All Lash Types"], inStock: true },
+
+  // ── FACE PACKS & MASKS ──
+  { id: 291, name: "Multani Mitti Face Pack (Pack of 3)", price: 149, originalPrice: 449, discount: 67, rating: 4.4, reviews: 41230, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Face Pack", brand: "Khadi Naturals", badge: "Herbal", description: "Traditional multani mitti face pack for oil control.", highlights: ["Multani Mitti", "Sandalwood", "100g Each", "Oil Control"], inStock: true },
+  { id: 292, name: "L'Oreal Pure Clay Mask", price: 299, originalPrice: 899, discount: 67, rating: 4.3, reviews: 18760, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Face Pack", brand: "L'Oreal Paris", description: "Exfoliating clay mask for smoother, brighter skin.", highlights: ["3 Pure Clays", "Exfoliating", "50ml", "Pore Cleansing"], inStock: true },
+  { id: 293, name: "Garnier Charcoal Anti-Blackhead Mask", price: 199, originalPrice: 599, discount: 67, rating: 4.2, reviews: 23450, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Face Pack", brand: "Garnier", description: "Deep pore cleansing charcoal mask for blackhead removal.", highlights: ["Charcoal", "Peel-Off", "Blackhead Removal", "50ml"], inStock: true },
+  { id: 294, name: "Sheet Mask Combo Pack (Set of 5)", price: 199, originalPrice: 599, discount: 67, rating: 4.4, reviews: 32140, image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop&q=80", category: "Cosmetics", subCategory: "Face Pack", brand: "MCaffeine", badge: "Best Value", description: "Hydrating and brightening sheet masks for glowing skin.", highlights: ["Set of 5", "Different Variants", "Hydrating", "Brightening"], inStock: true },
+
+  // ── MORE FASHION ──
+  { id: 301, name: "Clovia Women's Lace Bra", price: 199, originalPrice: 599, discount: 67, rating: 4.4, reviews: 34560, image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Lingerie", brand: "Clovia", badge: "Best Seller", description: "Pretty lace bra with comfortable fit and push-up padding.", highlights: ["Lace Design", "Push-Up", "Adjustable Straps", "Hook & Eye Closure"], inStock: true, sizes: ["32B","34B","36B","34C","36C","32C"] },
+  { id: 302, name: "Jockey Women's Seamless Briefs Pack of 3", price: 299, originalPrice: 899, discount: 67, rating: 4.5, reviews: 48760, image: "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Lingerie", brand: "Jockey", badge: "Top Pick", description: "Seamless everyday briefs for comfortable all-day wear.", highlights: ["Pack of 3", "Seamless", "No Panty Lines", "Moisture Wicking"], inStock: true, sizes: ["S","M","L","XL"] },
+  { id: 303, name: "Wunderlove Women's Jogger Pants", price: 399, originalPrice: 1199, discount: 67, rating: 4.3, reviews: 21340, image: "https://images.unsplash.com/photo-1592301933927-35b597393c0a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Activewear", brand: "Wunderlove", badge: "Active", description: "Super soft jogger pants perfect for lounging and workouts.", highlights: ["Super Soft", "Elastic Waistband", "Pockets", "Athleisure"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Black","Grey","Navy","Pink"] },
+  { id: 304, name: "Enamor Women Sport Bra", price: 349, originalPrice: 1099, discount: 68, rating: 4.4, reviews: 17650, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Activewear", brand: "Enamor", description: "High support sports bra for intense workout sessions.", highlights: ["High Support", "Moisture Wicking", "Cross-Back", "Wide Straps"], inStock: true, sizes: ["32","34","36","38"], colors: ["Black","Pink","Blue","Purple"] },
+  { id: 305, name: "IVES Women's Winter Thermal Inner", price: 249, originalPrice: 749, discount: 67, rating: 4.3, reviews: 12430, image: "https://images.unsplash.com/photo-1518050346340-aa2ec3bb424b?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Winterwear", brand: "IVES", description: "Warm thermal inner wear top for cold days.", highlights: ["Thermal Knit", "Warm", "Slim Fit", "Stretchable"], inStock: true, sizes: ["S","M","L","XL","XXL"], colors: ["Skin","Black","White"] },
+  { id: 306, name: "Columbia Women's Fleece Jacket", price: 499, originalPrice: 1999, discount: 75, rating: 4.6, reviews: 9870, image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Winterwear", brand: "Columbia", badge: "Outdoors", description: "Cozy fleece jacket for outdoor adventures.", highlights: ["Fleece Fabric", "Zip-Up", "2 Pockets", "Lightweight Warmth"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Black","Pink","Teal","Purple"] },
+  { id: 307, name: "Sassafras Women Blazer", price: 449, originalPrice: 1399, discount: 68, rating: 4.4, reviews: 8760, image: "https://images.unsplash.com/photo-1594938298603-c8148c4b4a1a?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Blazers", brand: "Sassafras", description: "Tailored blazer for a sharp, professional look.", highlights: ["Structured Fit", "Notch Lapel", "Single Button", "Office Wear"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["Black","Navy","White","Beige"] },
+  { id: 308, name: "Roadster Women Hoodie Sweatshirt", price: 349, originalPrice: 1099, discount: 68, rating: 4.3, reviews: 23450, image: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sweatshirts", brand: "Roadster", badge: "Cozy Pick", description: "Soft and cozy pullover hoodie for casual days.", highlights: ["Fleece Inner", "Kangaroo Pocket", "Adjustable Hood", "Regular Fit"], inStock: true, sizes: ["XS","S","M","L","XL","XXL"], colors: ["Grey","Black","Pink","Blue","White"] },
+  { id: 309, name: "Tokyo Talkies Women Sweatshirt", price: 299, originalPrice: 899, discount: 67, rating: 4.2, reviews: 14320, image: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&h=400&fit=crop&q=80", category: "Fashion", subCategory: "Sweatshirts", brand: "Tokyo Talkies", description: "Trendy printed sweatshirt for casual style.", highlights: ["Graphic Print", "Soft Fabric", "Round Neck", "Casual"], inStock: true, sizes: ["XS","S","M","L","XL"], colors: ["White","Pink","Sky Blue","Lavender"] },
 ];
+
+// ─── EXISTING ELECTRONICS (original products, IDs 1–12) ────────────────────
+const electronics: Product[] = [
+  { id: 1, name: "Samsung Galaxy S24 Ultra 5G", price: 74999, originalPrice: 134999, discount: 44, rating: 4.5, reviews: 28431, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop&q=80", category: "Mobiles", brand: "Samsung", badge: "Flipkart Special", description: "The Samsung Galaxy S24 Ultra with S-Pen, AI features, and 200MP camera system.", highlights: ["200MP Main Camera", "5000mAh Battery", "Snapdragon 8 Gen 3", "6.8 inch QHD+ Display"], inStock: true },
+  { id: 2, name: "Apple iPhone 15 Pro Max 256GB", price: 134900, originalPrice: 159900, discount: 16, rating: 4.6, reviews: 42103, image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&h=400&fit=crop&q=80", category: "Mobiles", brand: "Apple", badge: "Top Rated", description: "Apple iPhone 15 Pro Max with Titanium design and A17 Pro chip.", highlights: ["A17 Pro Chip", "48MP Main Camera", "Titanium Frame", "USB-C Connector"], inStock: true },
+  { id: 3, name: "Sony WH-1000XM5 Wireless Headphones", price: 24990, originalPrice: 34990, discount: 29, rating: 4.7, reviews: 15824, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&q=80", category: "Electronics", brand: "Sony", badge: "Best Seller", description: "Industry-leading noise cancellation with exceptional sound quality.", highlights: ["30Hr Battery Life", "ANC Technology", "LDAC Hi-Res Audio", "Multipoint Connection"], inStock: true },
+  { id: 4, name: "Apple MacBook Air M2 13-inch", price: 99900, originalPrice: 119900, discount: 17, rating: 4.8, reviews: 8932, image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=400&h=400&fit=crop&q=80", category: "Laptops", brand: "Apple", badge: "Trending", description: "MacBook Air with M2 chip — thin, light, and blazing fast.", highlights: ["Apple M2 Chip", "18Hr Battery", "8GB Unified Memory", "13.6-inch Liquid Retina"], inStock: true },
+  { id: 5, name: "LG 55-inch 4K OLED TV", price: 89990, originalPrice: 149990, discount: 40, rating: 4.6, reviews: 3241, image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&h=400&fit=crop&q=80", category: "TVs", brand: "LG", badge: "Great Deal", description: "LG 55-inch OLED TV with perfect blacks and stunning colors.", highlights: ["OLED Panel", "4K Resolution", "Dolby Vision IQ", "WebOS Smart TV"], inStock: true },
+  { id: 6, name: "iPad Air 5th Gen 10.9-inch", price: 54900, originalPrice: 69900, discount: 21, rating: 4.7, reviews: 11302, image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop&q=80", category: "Tablets", brand: "Apple", description: "iPad Air with M1 chip, stunning 10.9-inch display, and 5G support.", highlights: ["Apple M1 Chip", "10.9-inch Liquid Retina", "5G Support", "USB-C Connector"], inStock: true },
+  { id: 7, name: "Dell XPS 15 Laptop Core i7", price: 149999, originalPrice: 189999, discount: 21, rating: 4.5, reviews: 4213, image: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=400&h=400&fit=crop&q=80", category: "Laptops", brand: "Dell", badge: "Top Pick", description: "Dell XPS 15 with OLED touch display, Intel Core i7 and RTX 4060.", highlights: ["Intel Core i7-13700H", "32GB DDR5 RAM", "15.6 OLED Touch", "RTX 4060 GPU"], inStock: true },
+  { id: 8, name: "Canon EOS R50 Mirrorless Camera", price: 59990, originalPrice: 79990, discount: 25, rating: 4.6, reviews: 2134, image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=400&fit=crop&q=80", category: "Cameras", brand: "Canon", description: "Canon EOS R50 compact mirrorless camera perfect for beginners and content creators.", highlights: ["24.2MP CMOS Sensor", "4K Video", "Subject Detection AF", "Vari-angle LCD"], inStock: false },
+];
+
+export const products: Product[] = [...electronics, ...fashionCosmetics];
 
 export const categories = [
-  { name: "Mobiles", icon: "📱", count: 2 },
-  { name: "Laptops", icon: "💻", count: 2 },
-  { name: "Electronics", icon: "🎧", count: 2 },
-  { name: "TVs", icon: "📺", count: 1 },
-  { name: "Tablets", icon: "📲", count: 1 },
-  { name: "Cameras", icon: "📷", count: 1 },
-  { name: "Footwear", icon: "👟", count: 1 },
-  { name: "Home", icon: "🏠", count: 1 },
-  { name: "Kitchen", icon: "🍳", count: 1 },
+  { name: "Mobiles", icon: "📱" },
+  { name: "Laptops", icon: "💻" },
+  { name: "Electronics", icon: "🎧" },
+  { name: "TVs", icon: "📺" },
+  { name: "Tablets", icon: "📲" },
+  { name: "Cameras", icon: "📷" },
+  { name: "Fashion", icon: "👗" },
+  { name: "Cosmetics", icon: "💄" },
+  { name: "Footwear", icon: "👠" },
 ];
 
+export const subCategories: Record<string, string[]> = {
+  Fashion: ["Kurtas & Suits", "Sarees", "Tops & Tees", "Jeans", "Trousers", "Dresses", "Ethnic Wear", "Footwear", "Handbags", "Jewellery", "Scarves & Stoles", "Lingerie", "Activewear", "Winterwear", "Sweatshirts", "Blazers"],
+  Cosmetics: ["Lipstick", "Foundation", "Kajal & Eyeliner", "Eye Makeup", "Blush & Highlighter", "Nail Care", "Sunscreen", "Serums", "Face Wash", "Moisturizer", "Toner", "Perfumes", "Body Care", "Makeup Tools", "Face Pack", "Hair Care"],
+};
+
 export const banners = [
-  {
-    id: 1,
-    title: "Big Billion Days",
-    subtitle: "Up to 80% off on Electronics",
-    bg: "from-blue-600 to-blue-800",
-    cta: "Shop Now",
-  },
-  {
-    id: 2,
-    title: "Fashion Forward",
-    subtitle: "Latest trends up to 60% off",
-    bg: "from-purple-600 to-pink-600",
-    cta: "Explore",
-  },
-  {
-    id: 3,
-    title: "Mega Appliance Sale",
-    subtitle: "No cost EMI + Extra 10% bank discount",
-    bg: "from-orange-500 to-red-600",
-    cta: "Grab Deal",
-  },
+  { id: 1, title: "Big Billion Days", subtitle: "Up to 80% off on Electronics", bg: "from-blue-600 to-blue-800", cta: "Shop Now" },
+  { id: 2, title: "Fashion Fiesta", subtitle: "Kurtas, Sarees & Dresses from ₹149", bg: "from-purple-600 to-pink-600", cta: "Shop Fashion" },
+  { id: 3, title: "Cosmetics Sale", subtitle: "Top beauty brands up to 70% off", bg: "from-pink-500 to-rose-600", cta: "Shop Beauty" },
+  { id: 4, title: "Mega Appliance Sale", subtitle: "No cost EMI + Extra 10% bank discount", bg: "from-orange-500 to-red-600", cta: "Grab Deal" },
 ];
