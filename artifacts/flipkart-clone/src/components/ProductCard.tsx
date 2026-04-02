@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Star, ShoppingCart, Zap } from "lucide-react";
 import { Product } from "@/data/products";
 import { addToCart } from "@/store/cartStore";
@@ -12,6 +12,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [imgError, setImgError] = useState(false);
   const { toast } = useToast();
+  const [, navigate] = useLocation();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -115,7 +116,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 e.stopPropagation();
                 if (product.inStock) {
                   addToCart(product);
-                  window.location.href = import.meta.env.BASE_URL + "checkout";
+                  navigate("/checkout");
                 }
               }}
             >

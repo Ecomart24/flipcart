@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "wouter";
+import { Link, useParams, useLocation } from "wouter";
 import { Star, ShoppingCart, Zap, Heart, Share2, ChevronRight, CheckCircle, Truck, RefreshCw, Shield, Tag, ChevronDown, ChevronUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
@@ -17,6 +17,7 @@ const RATINGS_BREAKDOWN = [
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
+  const [, navigate] = useLocation();
   const product = products.find((p) => p.id === Number(id));
   const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState("");
@@ -51,7 +52,7 @@ export default function ProductDetail() {
 
   const handleBuyNow = () => {
     addToCart(product);
-    window.location.href = import.meta.env.BASE_URL + "checkout";
+    navigate("/checkout");
   };
 
   const checkDelivery = () => {

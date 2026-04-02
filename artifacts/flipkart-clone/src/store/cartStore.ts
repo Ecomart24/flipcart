@@ -5,7 +5,22 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
-let cartItems: CartItem[] = [];
+function loadFromStorage(): CartItem[] {
+  try {
+    const raw = localStorage.getItem("fk_cart");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveToStorage(items: CartItem[]) {
+  try {
+    localStorage.setItem("fk_cart", JSON.stringify(items));
+  } catch {}
+}
+
+let cartItems: CartItem[] = loadFromStorage();
 let listeners: (() => void)[] = [];
 
 function notifyListeners() {
@@ -25,11 +40,13 @@ export function addToCart(product: Product) {
   } else {
     cartItems = [...cartItems, { ...product, quantity: 1 }];
   }
+  saveToStorage(cartItems);
   notifyListeners();
 }
 
 export function removeFromCart(productId: number) {
   cartItems = cartItems.filter((i) => i.id !== productId);
+  saveToStorage(cartItems);
   notifyListeners();
 }
 
@@ -41,11 +58,13 @@ export function updateQuantity(productId: number, quantity: number) {
   cartItems = cartItems.map((i) =>
     i.id === productId ? { ...i, quantity } : i
   );
+  saveToStorage(cartItems);
   notifyListeners();
 }
 
 export function clearCart() {
   cartItems = [];
+  saveToStorage(cartItems);
   notifyListeners();
 }
 
