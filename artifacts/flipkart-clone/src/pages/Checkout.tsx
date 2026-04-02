@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useCart, clearCart } from "@/store/cartStore";
+import { placeOrder, Order } from "@/store/orderStore";
 
 type Step = "address" | "payment" | "otp";
 
@@ -42,6 +43,7 @@ export default function Checkout() {
   const [currentStep, setCurrentStep] = useState<Step>("address");
   const [completed, setCompleted] = useState<Step[]>([]);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
 
   // Step 1: Address
   const [address, setAddress] = useState<Address>({
@@ -162,6 +164,23 @@ export default function Checkout() {
       if (enteredOtp === "000000") {
         setOtpError("Invalid OTP. Please try again.");
       } else {
+        const savings = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
+        const deliveryCharge = total > 499 ? 0 : 40;
+        const order = placeOrder({
+          items,
+          address,
+          payment: {
+            type: payment.type,
+            upiId: payment.upiId,
+            cardLast4: payment.cardNumber ? payment.cardNumber.replace(/\s/g, "").slice(-4) : undefined,
+            bank: payment.bank,
+          },
+          subtotal: total,
+          deliveryCharge,
+          totalAmount: total + deliveryCharge,
+          savings,
+        });
+        setPlacedOrder(order);
         clearCart();
         setOrderPlaced(true);
       }
