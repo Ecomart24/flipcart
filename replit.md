@@ -1,5 +1,21 @@
 # Workspace
 
+## Artifacts
+
+### `artifacts/flipkart-clone` (`@workspace/flipkart-clone`)
+
+A Flipkart e-commerce replica with full shopping experience.
+
+- **Home page**: Product grid with search, category filters, hero banner carousel
+- **Product Detail**: Image gallery, ratings, delivery checker, add-to-cart, buy-now
+- **Cart**: Item management with quantity controls and price summary
+- **Checkout (3-step)**: Address → Payment → OTP verification demo flow
+- **Login/Register**: Auth UI with phone/email/password
+
+Data is stored in-memory (no backend needed). The cart is managed via a simple global store pattern.
+
+
+
 ## Overview
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
