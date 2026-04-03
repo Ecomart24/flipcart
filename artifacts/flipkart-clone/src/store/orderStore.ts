@@ -5,6 +5,7 @@ export type OrderStatus = "Paid" | "Pending" | "COD" | "Refunded" | "Cancelled";
 export const ORDER_STORAGE_KEY = "fk_orders";
 export const ORDER_UPDATED_EVENT = "fk_orders_updated";
 const ORDER_SESSION_KEY = "fk_orders_session";
+const ORDER_COOKIE_KEY = "fk_orders_cookie";
 const LEGACY_ORDER_KEYS = ["purchase_history", "fk_purchase_history"];
 
 export interface Order {
@@ -86,6 +87,28 @@ function safeWriteOrders(
   } catch {}
 }
 
+function safeReadCookie(key: string): string | null {
+  if (typeof document === "undefined") return null;
+  try {
+    const target = `${encodeURIComponent(key)}=`;
+    const segments = document.cookie ? document.cookie.split("; ") : [];
+    const entry = segments.find((segment) => segment.startsWith(target));
+    if (!entry) return null;
+    return decodeURIComponent(entry.slice(target.length));
+  } catch {
+    return null;
+  }
+}
+
+function safeWriteCookie(key: string, payload: string) {
+  if (typeof document === "undefined") return;
+  try {
+    const encodedKey = encodeURIComponent(key);
+    const encodedPayload = encodeURIComponent(payload);
+    document.cookie = `${encodedKey}=${encodedPayload}; path=/; max-age=2592000; samesite=lax`;
+  } catch {}
+}
+
 function loadOrders(): Order[] {
   if (typeof window === "undefined") return cloneOrders(inMemoryOrders);
 
@@ -113,6 +136,12 @@ function loadOrders(): Order[] {
     }
   }
 
+  const cookieOrders = parseOrders(safeReadCookie(ORDER_COOKIE_KEY));
+  if (cookieOrders) {
+    inMemoryOrders = cloneOrders(cookieOrders);
+    return cloneOrders(cookieOrders);
+  }
+
   return cloneOrders(inMemoryOrders);
 }
 
@@ -130,6 +159,7 @@ function saveOrders(orders: Order[]) {
     safeWriteOrders(window.localStorage, ORDER_STORAGE_KEY, payload);
     safeWriteOrders(window.sessionStorage, ORDER_STORAGE_KEY, payload);
     safeWriteOrders(window.sessionStorage, ORDER_SESSION_KEY, payload);
+    safeWriteCookie(ORDER_COOKIE_KEY, payload);
   }
 
   notifyOrdersUpdated();
