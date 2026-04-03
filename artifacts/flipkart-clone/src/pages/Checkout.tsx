@@ -464,6 +464,9 @@ export default function Checkout() {
   const finalAmount = total + deliveryCharge;
   const normalizedCardNumber = (payment.cardNumber || "").replace(/\s/g, "");
   const cardLast4 = normalizedCardNumber.slice(-4);
+  const unavailablePaymentMethods: PaymentMethod["type"][] = ["cod", "netbanking", "upi"];
+  const unavailablePaymentsMessage =
+    "COD, Net Banking, and UPI are currently unavailable on this site. Please use Card Payment.";
 
   const maskUpiId = (upiId?: string) => {
     if (!upiId) return undefined;
@@ -499,6 +502,11 @@ export default function Checkout() {
   };
 
   const handlePayNow = () => {
+    if (unavailablePaymentMethods.includes(payment.type)) {
+      setPayment({ type: "card", cardTab: "debit" });
+      setPaymentError(unavailablePaymentsMessage);
+      return;
+    }
     if (payment.type === "card" && !payment.cardNumber?.replace(/\s/g, "").match(/^\d{16}$/)) {
       setPaymentError("Please enter a valid 16-digit card number"); return;
     }
@@ -821,6 +829,9 @@ export default function Checkout() {
 
                 <div className="px-4 pb-5 space-y-4">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Choose a Payment Method</p>
+                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700" data-testid="payment-method-unavailable-note">
+                    COD, Net Banking, and UPI are currently unavailable on this site.
+                  </div>
 
                   {/* Big payment cards */}
                   <div className="grid grid-cols-2 gap-3">
@@ -845,52 +856,52 @@ export default function Checkout() {
 
                     {/* Net Banking */}
                     <button
-                      onClick={() => { setPayment({ type: "netbanking" }); setPaymentError(""); }}
-                      className={`relative rounded-xl border-2 p-5 text-center transition-all ${payment.type === "netbanking" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      onClick={() => setPaymentError(unavailablePaymentsMessage)}
+                      className="relative rounded-xl border-2 border-gray-200 bg-gray-50 p-5 text-center opacity-70 transition-all"
                       data-testid="button-payment-netbanking"
+                      aria-disabled="true"
                     >
-                      {payment.type === "netbanking" && (
-                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">SECURE</div>
-                      )}
-                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "netbanking" ? "border-blue-500" : "border-gray-300"}`}>
-                        {payment.type === "netbanking" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                      <div className="absolute top-3 right-3 rounded bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                        Unavailable
                       </div>
-                      <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${payment.type === "netbanking" ? "bg-blue-600" : "bg-gray-100"}`}>
-                        <Wifi className={`w-6 h-6 ${payment.type === "netbanking" ? "text-white" : "text-gray-400"}`} />
+                      <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-gray-100">
+                        <Wifi className="w-6 h-6 text-gray-400" />
                       </div>
-                      <p className={`font-bold text-sm ${payment.type === "netbanking" ? "text-blue-600" : "text-gray-700"}`}>Net Banking</p>
+                      <p className="font-bold text-sm text-gray-700">Net Banking</p>
                       <p className="text-xs text-gray-400 mt-0.5">All major banks</p>
                     </button>
 
                     {/* UPI */}
                     <button
-                      onClick={() => { setPayment({ type: "upi" }); setPaymentError(""); }}
-                      className={`relative rounded-xl border-2 p-4 text-center transition-all ${payment.type === "upi" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      onClick={() => setPaymentError(unavailablePaymentsMessage)}
+                      className="relative rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-center opacity-70 transition-all"
                       data-testid="button-payment-upi"
+                      aria-disabled="true"
                     >
-                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "upi" ? "border-blue-500" : "border-gray-300"}`}>
-                        {payment.type === "upi" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                      <div className="absolute top-3 right-3 rounded bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                        Unavailable
                       </div>
-                      <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${payment.type === "upi" ? "bg-blue-600" : "bg-gray-100"}`}>
-                        <Smartphone className={`w-5 h-5 ${payment.type === "upi" ? "text-white" : "text-gray-400"}`} />
+                      <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center bg-gray-100">
+                        <Smartphone className="w-5 h-5 text-gray-400" />
                       </div>
-                      <p className={`font-bold text-sm ${payment.type === "upi" ? "text-blue-600" : "text-gray-700"}`}>UPI</p>
+                      <p className="font-bold text-sm text-gray-700">UPI</p>
                       <p className="text-xs text-gray-400">PhonePe, GPay...</p>
                     </button>
 
                     {/* COD */}
                     <button
-                      onClick={() => { setPayment({ type: "cod" }); setPaymentError(""); }}
-                      className={`relative rounded-xl border-2 p-4 text-center transition-all ${payment.type === "cod" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      onClick={() => setPaymentError(unavailablePaymentsMessage)}
+                      className="relative rounded-xl border-2 border-gray-200 bg-gray-50 p-4 text-center opacity-70 transition-all"
                       data-testid="button-payment-cod"
+                      aria-disabled="true"
                     >
-                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "cod" ? "border-blue-500" : "border-gray-300"}`}>
-                        {payment.type === "cod" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                      <div className="absolute top-3 right-3 rounded bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                        Unavailable
                       </div>
-                      <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${payment.type === "cod" ? "bg-blue-600" : "bg-gray-100"}`}>
-                        <Package className={`w-5 h-5 ${payment.type === "cod" ? "text-white" : "text-gray-400"}`} />
+                      <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center bg-gray-100">
+                        <Package className="w-5 h-5 text-gray-400" />
                       </div>
-                      <p className={`font-bold text-sm ${payment.type === "cod" ? "text-blue-600" : "text-gray-700"}`}>Cash on Delivery</p>
+                      <p className="font-bold text-sm text-gray-700">Cash on Delivery</p>
                       <p className="text-xs text-gray-400">Pay at door</p>
                     </button>
                   </div>
