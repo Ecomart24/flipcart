@@ -2,6 +2,8 @@ import { CartItem } from "./cartStore";
 
 export type PaymentType = "upi" | "card" | "netbanking" | "cod";
 export type OrderStatus = "Paid" | "Pending" | "COD" | "Refunded" | "Cancelled";
+export const ORDER_STORAGE_KEY = "fk_orders";
+export const ORDER_UPDATED_EVENT = "fk_orders_updated";
 
 export interface Order {
   orderId: string;
@@ -38,18 +40,26 @@ function generateOrderId(): string {
 }
 
 function loadOrders(): Order[] {
+  if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem("fk_orders");
+    const raw = localStorage.getItem(ORDER_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 }
 
+function notifyOrdersUpdated() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(ORDER_UPDATED_EVENT));
+}
+
 function saveOrders(orders: Order[]) {
+  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem("fk_orders", JSON.stringify(orders));
+    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orders));
   } catch {}
+  notifyOrdersUpdated();
 }
 
 export function placeOrder(data: Omit<Order, "orderId" | "placedAt" | "status">): Order {

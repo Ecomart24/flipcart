@@ -4,6 +4,8 @@ import { RefreshCw, ArrowLeft, Lock, LogOut } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
   Order,
+  ORDER_STORAGE_KEY,
+  ORDER_UPDATED_EVENT,
   getOrderStats,
   getOrders,
 } from "@/store/orderStore";
@@ -60,15 +62,24 @@ export default function Admin() {
     const syncOrders = () => setOrders(getOrders());
     syncOrders();
 
-    const intervalId = window.setInterval(syncOrders, 5000);
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === "fk_orders") syncOrders();
+      if (event.key === ORDER_STORAGE_KEY) syncOrders();
+    };
+    const handleOrdersUpdated = () => syncOrders();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") syncOrders();
     };
 
     window.addEventListener("storage", handleStorage);
+    window.addEventListener(ORDER_UPDATED_EVENT, handleOrdersUpdated as EventListener);
+    window.addEventListener("focus", syncOrders);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
-      window.clearInterval(intervalId);
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener(ORDER_UPDATED_EVENT, handleOrdersUpdated as EventListener);
+      window.removeEventListener("focus", syncOrders);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [isAuthenticated]);
 
