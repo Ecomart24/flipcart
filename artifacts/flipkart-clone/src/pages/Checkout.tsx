@@ -458,6 +458,8 @@ export default function Checkout() {
   const [payment, setPayment] = useState<PaymentMethod>({ type: "card", cardTab: "debit" });
   const [paymentError, setPaymentError] = useState("");
   const [saveCard, setSaveCard] = useState(false);
+  const [isPincodeLookupLoading, setIsPincodeLookupLoading] = useState(false);
+  const [pincodeLookupError, setPincodeLookupError] = useState("");
 
   const savings = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
   const deliveryCharge = total > 499 ? 0 : 40;
@@ -485,6 +487,115 @@ export default function Checkout() {
     return `${"*".repeat(Math.max(otp.length - 1, 0))}${otp.slice(-1)}`;
   };
 
+  const isCardNumberValid = (cardNumber: string) => {
+    let sum = 0;
+    let shouldDouble = false;
+
+    for (let i = cardNumber.length - 1; i >= 0; i -= 1) {
+      let digit = Number(cardNumber[i]);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+
+    return sum % 10 === 0;
+  };
+
+  const isCardExpiryValid = (expiry?: string) => {
+    if (!expiry) return false;
+
+    const match = expiry.match(/^(\d{2})\/(\d{2})$/);
+    if (!match) return false;
+
+    const month = Number(match[1]);
+    const year = Number(`20${match[2]}`);
+    if (month < 1 || month > 12) return false;
+
+    const now = new Date();
+    const expiryDate = new Date(year, month, 0, 23, 59, 59, 999);
+    return expiryDate >= now;
+  };
+
+  const validateCardPayment = () => {
+    if (!/^\d{16}$/.test(normalizedCardNumber)) {
+      return "Please enter a valid 16-digit card number";
+    }
+    if (!isCardNumberValid(normalizedCardNumber)) {
+      return "Card number is invalid. Please check and try again";
+    }
+    if (!isCardExpiryValid(payment.cardExpiry)) {
+      return "Please enter a valid expiry date (MM/YY)";
+    }
+    if (!/^\d{3}$/.test(payment.cardCVV || "")) {
+      return "Please enter a valid 3-digit CVV";
+    }
+    if (!payment.cardName?.trim() || payment.cardName.trim().length < 3) {
+      return "Please enter the name on card";
+    }
+    if (!payment.bank) {
+      return "Please select your issuing bank";
+    }
+    return "";
+  };
+
+  useEffect(() => {
+    const pincode = address.pincode.trim();
+    if (!/^\d{6}$/.test(pincode)) {
+      setIsPincodeLookupLoading(false);
+      setPincodeLookupError("");
+      return;
+    }
+
+    const controller = new AbortController();
+    let isCancelled = false;
+
+    const lookupPincode = async () => {
+      setIsPincodeLookupLoading(true);
+      setPincodeLookupError("");
+
+      try {
+        const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Lookup failed");
+
+        const payload = await response.json();
+        const firstResult = Array.isArray(payload) ? payload[0] : undefined;
+        const postOffice = firstResult?.PostOffice?.[0];
+        const state = postOffice?.State;
+        const city = postOffice?.District || postOffice?.Division || postOffice?.Name;
+
+        if (!state || !city) {
+          throw new Error("No location found");
+        }
+
+        if (isCancelled) return;
+
+        setAddress((prev) => ({
+          ...prev,
+          city,
+          state,
+        }));
+        setAddressErrors((prev) => ({ ...prev, city: "", state: "", pincode: "" }));
+      } catch (error) {
+        if (isCancelled || (error as Error).name === "AbortError") return;
+        setPincodeLookupError("Could not auto-detect city/state. Please enter manually.");
+      } finally {
+        if (!isCancelled) setIsPincodeLookupLoading(false);
+      }
+    };
+
+    void lookupPincode();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, [address.pincode]);
+
   const validateAddress = () => {
     const errors: Partial<Record<keyof Address, string>> = {};
     if (!address.name.trim()) errors.name = "Name is required";
@@ -507,8 +618,12 @@ export default function Checkout() {
       setPaymentError(unavailablePaymentsMessage);
       return;
     }
-    if (payment.type === "card" && !payment.cardNumber?.replace(/\s/g, "").match(/^\d{16}$/)) {
-      setPaymentError("Please enter a valid 16-digit card number"); return;
+    if (payment.type === "card") {
+      const cardValidationError = validateCardPayment();
+      if (cardValidationError) {
+        setPaymentError(cardValidationError);
+        return;
+      }
     }
     if (payment.type === "upi" && !payment.upiId) {
       setPaymentError("Please enter your UPI ID"); return;
@@ -597,6 +712,7 @@ export default function Checkout() {
 
   const formatCard = (v: string) => v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
   const formatExpiry = (v: string) => v.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})(\d)/, "$1/$2");
+  const stateOptions = address.state && !STATES.includes(address.state) ? [address.state, ...STATES] : STATES;
   const successPaymentLabel =
     placedOrder?.payment.type === "upi"
       ? `UPI (${placedOrder.payment.upiIdMasked || "masked"})`
@@ -771,8 +887,21 @@ export default function Checkout() {
                   <div className="grid sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Pincode *</label>
-                      <input type="text" maxLength={6} value={address.pincode} onChange={(e) => setAddress({ ...address, pincode: e.target.value.replace(/\D/g, "") })} placeholder="6-digit pincode" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" data-testid="input-pincode-checkout" />
+                      <input
+                        type="text"
+                        maxLength={6}
+                        value={address.pincode}
+                        onChange={(e) => {
+                          setPincodeLookupError("");
+                          setAddress({ ...address, pincode: e.target.value.replace(/\D/g, "") });
+                        }}
+                        placeholder="6-digit pincode"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                        data-testid="input-pincode-checkout"
+                      />
                       {addressErrors.pincode && <p className="text-red-500 text-xs mt-1">{addressErrors.pincode}</p>}
+                      {isPincodeLookupLoading && <p className="text-blue-500 text-xs mt-1">Detecting city and state...</p>}
+                      {pincodeLookupError && <p className="text-amber-600 text-xs mt-1">{pincodeLookupError}</p>}
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">City *</label>
@@ -783,7 +912,7 @@ export default function Checkout() {
                       <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">State *</label>
                       <select value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 bg-white" data-testid="select-state">
                         <option value="">Select State</option>
-                        {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                        {stateOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                       {addressErrors.state && <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>}
                     </div>
