@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter @workspace/flipkart-clone build && node ./scripts/vercel-sync-output.mjs",
-  "outputDirectory": "artifacts/flipkart-clone/dist/public"
+  "buildCommand": "pnpm --filter @workspace/flipkart-clone build",
+  "outputDirectory": "public"
 }
