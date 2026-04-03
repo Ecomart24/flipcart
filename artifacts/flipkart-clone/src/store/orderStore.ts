@@ -148,6 +148,24 @@ export function placeOrder(data: Omit<Order, "orderId" | "placedAt" | "status">)
   return order;
 }
 
+export function updateOrder(orderId: string, patch: Partial<Omit<Order, "orderId" | "placedAt">>): Order | null {
+  const orders = loadOrders();
+  const index = orders.findIndex((order) => order.orderId === orderId);
+  if (index === -1) return null;
+
+  const target = orders[index];
+  const nextOrder: Order = {
+    ...target,
+    ...patch,
+    address: patch.address ? { ...target.address, ...patch.address } : target.address,
+    payment: patch.payment ? { ...target.payment, ...patch.payment } : target.payment,
+    items: patch.items ? patch.items.map((item) => ({ ...item })) : target.items,
+  };
+  orders[index] = nextOrder;
+  saveOrders(orders);
+  return nextOrder;
+}
+
 export function getOrders(): Order[] {
   return loadOrders();
 }

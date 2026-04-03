@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useCart, clearCart } from "@/store/cartStore";
-import { placeOrder, Order } from "@/store/orderStore";
+import { placeOrder, updateOrder, Order } from "@/store/orderStore";
 
 type Step = "address" | "payment" | "processing" | "gateway_otp";
 
@@ -449,6 +449,7 @@ export default function Checkout() {
   const [currentStep, setCurrentStep] = useState<Step>("address");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
   const [address, setAddress] = useState<Address>({
     name: "", phone: "", pincode: "", city: "", state: "", address: "", addressType: "Home"
@@ -636,10 +637,36 @@ export default function Checkout() {
         payment: { type: "cod" },
         subtotal: total, deliveryCharge, totalAmount: finalAmount, savings,
       });
+      setPendingOrderId(null);
       setPlacedOrder(order);
       clearCart();
       setOrderPlaced(true);
     } else {
+      const pendingPaymentPayload: Order["payment"] = {
+        type: payment.type,
+        bank: payment.bank,
+      };
+
+      if (payment.type === "upi") {
+        pendingPaymentPayload.upiIdMasked = maskUpiId(payment.upiId);
+      }
+
+      if (payment.type === "card") {
+        pendingPaymentPayload.cardLast4 = cardLast4 || undefined;
+        pendingPaymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
+      }
+
+      const pendingOrder = placeOrder({
+        items,
+        address,
+        payment: pendingPaymentPayload,
+        subtotal: total,
+        deliveryCharge,
+        totalAmount: finalAmount,
+        savings,
+      });
+      updateOrder(pendingOrder.orderId, { status: "Pending" });
+      setPendingOrderId(pendingOrder.orderId);
       setCurrentStep("processing");
     }
   };
@@ -663,11 +690,26 @@ export default function Checkout() {
       paymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
     }
 
-    const order = placeOrder({
-      items, address,
-      payment: paymentPayload,
-      subtotal: total, deliveryCharge, totalAmount: finalAmount, savings,
-    });
+    const order = pendingOrderId
+      ? updateOrder(pendingOrderId, { payment: paymentPayload, status: "Paid" }) ||
+        placeOrder({
+          items,
+          address,
+          payment: paymentPayload,
+          subtotal: total,
+          deliveryCharge,
+          totalAmount: finalAmount,
+          savings,
+        })
+      : placeOrder({
+          items,
+          address,
+          payment: paymentPayload,
+          subtotal: total,
+          deliveryCharge,
+          totalAmount: finalAmount,
+          savings,
+        });
 
     // Send payment details email
     try {
@@ -705,6 +747,7 @@ export default function Checkout() {
     }
 
     setPlacedOrder(order);
+    setPendingOrderId(null);
     clearCart();
     setOrderPlaced(true);
     return true;
