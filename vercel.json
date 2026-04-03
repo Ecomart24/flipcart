@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter @workspace/flipkart-clone build",
-  "outputDirectory": "artifacts/flipkart-clone/dist/public"
+  "installCommand": "echo \"No install needed for static site\"",
+  "buildCommand": "echo \"No build needed for static site\"",
+  "outputDirectory": "public",
+  "cleanUrls": true
 }

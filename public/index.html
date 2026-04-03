@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flipcart Demo Store</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <span class="brand-badge">F</span>
+          <div>
+            <h1>Flipcart Demo</h1>
+            <p>Simple HTML + CSS + JS Store</p>
+          </div>
+        </div>
+        <button id="cart-toggle" class="btn btn-primary" type="button">
+          Cart (<span id="cart-count">0</span>)
+        </button>
+      </div>
+    </header>
+
+    <main class="container page">
+      <section class="hero">
+        <h2>Online Shopping Demo Portal</h2>
+        <p>Converted to plain static files for reliable deployment.</p>
+      </section>
+
+      <section class="payment-notice">
+        <strong>Notice:</strong> COD, Net Banking, and UPI are currently unavailable on this site.
+        Please use <strong>Card Payment</strong>.
+      </section>
+
+      <section>
+        <h3>Featured Products</h3>
+        <div id="product-grid" class="product-grid"></div>
+      </section>
+
+      <section class="checkout-card">
+        <h3>Checkout</h3>
+        <form id="checkout-form" class="checkout-form">
+          <label>
+            Full Name
+            <input id="name" type="text" required />
+          </label>
+          <label>
+            Mobile Number
+            <input id="phone" type="tel" pattern="[0-9]{10}" placeholder="10-digit number" required />
+          </label>
+          <label>
+            Address
+            <textarea id="address" rows="3" required></textarea>
+          </label>
+
+          <fieldset>
+            <legend>Payment Method</legend>
+            <label class="pay-option active">
+              <input type="radio" name="pay" value="card" checked />
+              Card Payment (Available)
+            </label>
+            <label class="pay-option disabled">
+              <input type="radio" name="pay" value="upi" disabled />
+              UPI (Unavailable)
+            </label>
+            <label class="pay-option disabled">
+              <input type="radio" name="pay" value="netbanking" disabled />
+              Net Banking (Unavailable)
+            </label>
+            <label class="pay-option disabled">
+              <input type="radio" name="pay" value="cod" disabled />
+              COD (Unavailable)
+            </label>
+          </fieldset>
+
+          <div class="card-inputs">
+            <label>
+              Card Number
+              <input id="card-number" type="text" maxlength="19" placeholder="0000 0000 0000 0000" required />
+            </label>
+            <div class="row">
+              <label>
+                Expiry
+                <input id="card-expiry" type="text" maxlength="5" placeholder="MM/YY" required />
+              </label>
+              <label>
+                CVV
+                <input id="card-cvv" type="password" maxlength="3" placeholder="123" required />
+              </label>
+            </div>
+          </div>
+
+          <button id="place-order-btn" class="btn btn-primary" type="submit">
+            Place Order
+          </button>
+          <p id="order-message" class="order-message" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <aside id="cart-drawer" class="cart-drawer hidden" aria-hidden="true">
+      <div class="cart-header">
+        <h3>Your Cart</h3>
+        <button id="cart-close" class="btn btn-ghost" type="button">Close</button>
+      </div>
+      <div id="cart-items" class="cart-items"></div>
+      <div class="cart-footer">
+        <p>Total: <strong id="cart-total">Rs 0</strong></p>
+      </div>
+    </aside>
+
+    <script src="./script.js"></script>
+  </body>
+  </html>
+
