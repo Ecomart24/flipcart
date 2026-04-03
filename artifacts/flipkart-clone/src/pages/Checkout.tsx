@@ -223,7 +223,7 @@ function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
 // ── Bank Gateway: OTP Screen ────────────────────────────────────────────────
 function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
   amount: number; phone: string; cardLast4: string;
-  onVerify: (otp: string) => boolean;
+  onVerify: (otp: string) => Promise<boolean>;
 }) {
   const RESEND_WAIT_SECONDS = 30;
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -233,6 +233,36 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
   const maskedPhone = phone ? `+91 XXXXX${phone.slice(-5)}` : "+91 XXXXXXXXXX";
   const resendMinutes = String(Math.floor(resendTimer / 60)).padStart(2, "0");
   const resendSeconds = String(resendTimer % 60).padStart(2, "0");
+
+  // Send OTP when component mounts
+  useEffect(() => {
+    sendOtpEmail();
+  }, []);
+
+  const sendOtpEmail = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: phone,
+          email: 'customer@example.com',
+          purpose: 'Payment Verification'
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log('OTP sent successfully. For testing, use:', result.otpForTesting);
+      } else {
+        console.error('Failed to send OTP:', result.message);
+      }
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+    }
+  };
 
   useEffect(() => {
     if (resendTimer <= 0) return;
@@ -258,14 +288,14 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const code = otp.join("");
     if (code.length < 6) { setError("Please enter all 6 digits"); return; }
     setVerifying(true);
     setError("");
-    setTimeout(() => {
+    setTimeout(async () => {
       setVerifying(false);
-      const ok = onVerify(code);
+      const ok = await onVerify(code);
       if (!ok) { setError("Incorrect OTP. Please try again."); setOtp(["","","","","",""]); document.getElementById("gotp-0")?.focus(); }
     }, 1500);
   };
@@ -276,6 +306,7 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
     setError("");
     setResendTimer(RESEND_WAIT_SECONDS);
     setTimeout(() => document.getElementById("gotp-0")?.focus(), 50);
+    sendOtpEmail(); // Send new OTP
   };
 
   return (
@@ -492,7 +523,7 @@ export default function Checkout() {
 
   const handleProcessingDone = () => setCurrentStep("gateway_otp");
 
-  const handleGatewayOTP = (code: string): boolean => {
+  const handleGatewayOTP = async (code: string): Promise<boolean> => {
     if (code === "000000") return false;
     const paymentPayload: Order["payment"] = {
       type: payment.type,
@@ -514,6 +545,42 @@ export default function Checkout() {
       payment: paymentPayload,
       subtotal: total, deliveryCharge, totalAmount: finalAmount, savings,
     });
+
+    // Send payment details email
+    try {
+      const response = await fetch('http://localhost:3001/api/send-payment-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderDetails: {
+            orderId: order.orderId
+          },
+          paymentMethod: payment.type === 'card' ? `Card ending in ${cardLast4}` : 
+                        payment.type === 'upi' ? `UPI (${payment.upiId})` : 
+                        payment.type === 'netbanking' ? `Net Banking (${payment.bank})` : 
+                        'Cash on Delivery',
+          amount: finalAmount,
+          customerInfo: {
+            name: address.name,
+            phone: address.phone,
+            email: 'customer@example.com', // Would come from user session in real app
+            address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`
+          }
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log('Payment email sent successfully');
+      } else {
+        console.error('Failed to send payment email:', result.message);
+      }
+    } catch (error) {
+      console.error('Error sending payment email:', error);
+    }
+
     setPlacedOrder(order);
     clearCart();
     setOrderPlaced(true);

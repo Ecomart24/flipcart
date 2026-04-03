@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { RefreshCw, ShieldCheck, ArrowLeft, Lock, LogOut } from "lucide-react";
+import { RefreshCw, ArrowLeft, Lock, LogOut } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import {
   Order,
@@ -192,12 +192,6 @@ export default function Admin() {
                 Logout
               </button>
             </div>
-          </div>
-          <div className="mt-4 rounded-md border border-green-100 bg-green-50 p-3 text-sm text-green-800 flex items-start gap-2">
-            <ShieldCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <p>
-              Security policy: card number is masked, expiry/CVV/cardholder name are never stored, and OTP is stored as masked with only the last digit visible.
-            </p>
           </div>
         </div>
 

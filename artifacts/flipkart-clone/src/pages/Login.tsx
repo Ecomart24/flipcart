@@ -13,7 +13,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -41,6 +41,31 @@ export default function Login() {
         setError("Password must be at least 6 characters");
         return;
       }
+
+      // Send registration email with contact details
+      try {
+        const response = await fetch('http://localhost:3001/api/send-registration-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: email.split('@')[0], // Extract name from email
+            email: email,
+            phone: phone
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          console.log('Registration email sent successfully');
+        } else {
+          console.error('Failed to send registration email:', result.message);
+        }
+      } catch (error) {
+        console.error('Error sending registration email:', error);
+      }
+
       setSuccess("Account created! Redirecting...");
       setTimeout(() => setLocation("/"), 1500);
     }
