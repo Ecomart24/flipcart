@@ -4,6 +4,8 @@ export type PaymentType = "upi" | "card" | "netbanking" | "cod";
 export type OrderStatus = "Paid" | "Pending" | "COD" | "Refunded" | "Cancelled";
 export const ORDER_STORAGE_KEY = "fk_orders";
 export const ORDER_UPDATED_EVENT = "fk_orders_updated";
+const ORDER_SESSION_KEY = "fk_orders_session";
+const LEGACY_ORDER_KEYS = ["purchase_history", "fk_purchase_history"];
 
 export interface Order {
   orderId: string;
@@ -39,14 +41,79 @@ function generateOrderId(): string {
   return `FK${ts}${rand}`;
 }
 
-function loadOrders(): Order[] {
-  if (typeof window === "undefined") return [];
+let inMemoryOrders: Order[] = [];
+
+function cloneOrders(orders: Order[]) {
+  return orders.map((order) => ({
+    ...order,
+    items: order.items.map((item) => ({ ...item })),
+    address: { ...order.address },
+    payment: { ...order.payment },
+  }));
+}
+
+function parseOrders(raw: string | null): Order[] | null {
+  if (!raw) return null;
   try {
-    const raw = localStorage.getItem(ORDER_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return null;
+    return parsed as Order[];
   } catch {
-    return [];
+    return null;
   }
+}
+
+function safeReadOrders(
+  storage: Pick<Storage, "getItem"> | undefined,
+  key: string,
+): Order[] | null {
+  if (!storage) return null;
+  try {
+    return parseOrders(storage.getItem(key));
+  } catch {
+    return null;
+  }
+}
+
+function safeWriteOrders(
+  storage: Pick<Storage, "setItem"> | undefined,
+  key: string,
+  payload: string,
+) {
+  if (!storage) return;
+  try {
+    storage.setItem(key, payload);
+  } catch {}
+}
+
+function loadOrders(): Order[] {
+  if (typeof window === "undefined") return cloneOrders(inMemoryOrders);
+
+  const localOrders = safeReadOrders(window.localStorage, ORDER_STORAGE_KEY);
+  if (localOrders) {
+    inMemoryOrders = cloneOrders(localOrders);
+    return cloneOrders(localOrders);
+  }
+
+  const sessionOrders =
+    safeReadOrders(window.sessionStorage, ORDER_STORAGE_KEY) ??
+    safeReadOrders(window.sessionStorage, ORDER_SESSION_KEY);
+  if (sessionOrders) {
+    inMemoryOrders = cloneOrders(sessionOrders);
+    return cloneOrders(sessionOrders);
+  }
+
+  for (const key of LEGACY_ORDER_KEYS) {
+    const legacyOrders =
+      safeReadOrders(window.localStorage, key) ??
+      safeReadOrders(window.sessionStorage, key);
+    if (legacyOrders) {
+      inMemoryOrders = cloneOrders(legacyOrders);
+      return cloneOrders(legacyOrders);
+    }
+  }
+
+  return cloneOrders(inMemoryOrders);
 }
 
 function notifyOrdersUpdated() {
@@ -55,10 +122,16 @@ function notifyOrdersUpdated() {
 }
 
 function saveOrders(orders: Order[]) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orders));
-  } catch {}
+  const clonedOrders = cloneOrders(orders);
+  inMemoryOrders = clonedOrders;
+
+  if (typeof window !== "undefined") {
+    const payload = JSON.stringify(clonedOrders);
+    safeWriteOrders(window.localStorage, ORDER_STORAGE_KEY, payload);
+    safeWriteOrders(window.sessionStorage, ORDER_STORAGE_KEY, payload);
+    safeWriteOrders(window.sessionStorage, ORDER_SESSION_KEY, payload);
+  }
+
   notifyOrdersUpdated();
 }
 

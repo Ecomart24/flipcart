@@ -74,12 +74,14 @@ export default function Admin() {
     window.addEventListener(ORDER_UPDATED_EVENT, handleOrdersUpdated as EventListener);
     window.addEventListener("focus", syncOrders);
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    const pollingId = window.setInterval(syncOrders, 2000);
 
     return () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener(ORDER_UPDATED_EVENT, handleOrdersUpdated as EventListener);
       window.removeEventListener("focus", syncOrders);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.clearInterval(pollingId);
     };
   }, [isAuthenticated]);
 
