@@ -7,9 +7,14 @@ const appDir = path.resolve(scriptsDir, "..");
 const repoRoot = path.resolve(appDir, "..", "..");
 
 const sourceDir = path.join(appDir, "dist", "public");
-const targetDir = path.join(repoRoot, "public");
+const targetDirs = [
+  path.join(repoRoot, "public"),
+  path.join(repoRoot, "artifacts", "api-server", "public"),
+  path.join(appDir, "public"),
+];
 
-await rm(targetDir, { recursive: true, force: true });
-await mkdir(targetDir, { recursive: true });
-await cp(sourceDir, targetDir, { recursive: true });
-
+for (const targetDir of targetDirs) {
+  await rm(targetDir, { recursive: true, force: true });
+  await mkdir(targetDir, { recursive: true });
+  await cp(sourceDir, targetDir, { recursive: true });
+}
