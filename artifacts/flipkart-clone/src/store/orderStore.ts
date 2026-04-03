@@ -18,9 +18,11 @@ export interface Order {
   };
   payment: {
     type: PaymentType;
-    upiId?: string;
+    upiIdMasked?: string;
+    cardMasked?: string;
     cardLast4?: string;
     bank?: string;
+    otpMasked?: string;
   };
   subtotal: number;
   deliveryCharge: number;

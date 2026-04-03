@@ -48,25 +48,58 @@ const BANKS = [
 function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
   amount: number; cardLast4: string; cardName: string; onDone: () => void;
 }) {
+  const PROCESSING_WAIT_MS = 30000;
   const [progress, setProgress] = useState(0);
   const [statusMsg, setStatusMsg] = useState("Initializing secure TLS connection...");
+  const [elapsedMs, setElapsedMs] = useState(0);
   const done = useRef(false);
+  const secondsRemaining = Math.max(0, Math.ceil((PROCESSING_WAIT_MS - elapsedMs) / 1000));
+  const remainingMinutesLabel = String(Math.floor(secondsRemaining / 60)).padStart(2, "0");
+  const remainingSecondsLabel = String(secondsRemaining % 60).padStart(2, "0");
 
   useEffect(() => {
-    const msgs = [
-      { at: 500,  msg: "Initializing secure TLS connection...", pct: 9  },
-      { at: 1200, msg: "Verifying card details...",              pct: 28 },
-      { at: 2000, msg: "Authenticating with bank...",            pct: 55 },
-      { at: 2700, msg: "Requesting OTP verification...",         pct: 78 },
-      { at: 3200, msg: "Redirecting to bank OTP page...",        pct: 95 },
-    ];
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    msgs.forEach(({ at, msg, pct }) => {
-      timers.push(setTimeout(() => { setStatusMsg(msg); setProgress(pct); }, at));
-    });
-    timers.push(setTimeout(() => { if (!done.current) { done.current = true; onDone(); } }, 3700));
-    return () => timers.forEach(clearTimeout);
-  }, [onDone]);
+    const tick = setInterval(() => {
+      setElapsedMs((prev) => Math.min(prev + 1000, PROCESSING_WAIT_MS));
+    }, 1000);
+    const doneTimer = setTimeout(() => {
+      if (!done.current) {
+        done.current = true;
+        setProgress(100);
+        onDone();
+      }
+    }, PROCESSING_WAIT_MS);
+
+    return () => {
+      clearInterval(tick);
+      clearTimeout(doneTimer);
+    };
+  }, [onDone, PROCESSING_WAIT_MS]);
+
+  useEffect(() => {
+    const progressPct = Math.max(
+      5,
+      Math.min(95, Math.round((elapsedMs / PROCESSING_WAIT_MS) * 95)),
+    );
+    setProgress(progressPct);
+
+    if (elapsedMs < 7500) {
+      setStatusMsg("Initializing secure TLS connection...");
+      return;
+    }
+    if (elapsedMs < 15000) {
+      setStatusMsg("Verifying card details...");
+      return;
+    }
+    if (elapsedMs < 22500) {
+      setStatusMsg("Authenticating with bank...");
+      return;
+    }
+    if (elapsedMs < 28000) {
+      setStatusMsg("Requesting OTP verification...");
+      return;
+    }
+    setStatusMsg("Redirecting to bank OTP page...");
+  }, [elapsedMs, PROCESSING_WAIT_MS]);
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#e8f0fe 0%,#f0f4ff 100%)" }}>
@@ -142,7 +175,7 @@ function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
               </div>
             </div>
             <div className="flex justify-between text-xs text-gray-400 mb-5">
-              <span>Processing...</span>
+              <span>Processing... ({remainingMinutesLabel}:{remainingSecondsLabel})</span>
               <span>{progress}%</span>
             </div>
 
@@ -192,10 +225,22 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
   amount: number; phone: string; cardLast4: string;
   onVerify: (otp: string) => boolean;
 }) {
+  const RESEND_WAIT_SECONDS = 30;
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [verifying, setVerifying] = useState(false);
+  const [resendTimer, setResendTimer] = useState(RESEND_WAIT_SECONDS);
   const maskedPhone = phone ? `+91 XXXXX${phone.slice(-5)}` : "+91 XXXXXXXXXX";
+  const resendMinutes = String(Math.floor(resendTimer / 60)).padStart(2, "0");
+  const resendSeconds = String(resendTimer % 60).padStart(2, "0");
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const timer = setInterval(() => {
+      setResendTimer((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendTimer]);
 
   const handleOtpChange = (val: string, i: number) => {
     const d = val.replace(/\D/g, "").slice(0, 1);
@@ -223,6 +268,14 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
       const ok = onVerify(code);
       if (!ok) { setError("Incorrect OTP. Please try again."); setOtp(["","","","","",""]); document.getElementById("gotp-0")?.focus(); }
     }, 1500);
+  };
+
+  const handleResend = () => {
+    if (resendTimer > 0) return;
+    setOtp(["", "", "", "", "", ""]);
+    setError("");
+    setResendTimer(RESEND_WAIT_SECONDS);
+    setTimeout(() => document.getElementById("gotp-0")?.focus(), 50);
   };
 
   return (
@@ -306,10 +359,18 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
             {error && <p className="text-red-500 text-xs text-center mt-2 mb-1">{error}</p>}
 
             <button
-              onClick={() => { setOtp(["","","","","",""]); setError(""); setTimeout(() => document.getElementById("gotp-0")?.focus(), 50); }}
-              className="block mx-auto text-blue-600 text-sm font-semibold hover:underline mt-3 mb-5"
+              onClick={handleResend}
+              disabled={resendTimer > 0}
+              className={`block mx-auto text-sm font-semibold mt-3 mb-5 ${
+                resendTimer > 0
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:underline"
+              }`}
+              data-testid="button-gateway-resend"
             >
-              Resend OTP
+              {resendTimer > 0
+                ? `Resend OTP in ${resendMinutes}:${resendSeconds}`
+                : "Resend OTP"}
             </button>
 
             {/* Verify button */}
@@ -370,6 +431,25 @@ export default function Checkout() {
   const savings = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
   const deliveryCharge = total > 499 ? 0 : 40;
   const finalAmount = total + deliveryCharge;
+  const normalizedCardNumber = (payment.cardNumber || "").replace(/\s/g, "");
+  const cardLast4 = normalizedCardNumber.slice(-4);
+
+  const maskUpiId = (upiId?: string) => {
+    if (!upiId) return undefined;
+    const cleaned = upiId.trim();
+    const [username, domain] = cleaned.split("@");
+    if (!domain) {
+      if (cleaned.length <= 1) return "*";
+      return `${cleaned[0]}${"*".repeat(cleaned.length - 1)}`;
+    }
+    const firstChar = username?.[0] || "*";
+    return `${firstChar}${"*".repeat(Math.max((username?.length || 1) - 1, 0))}@${domain}`;
+  };
+
+  const maskOtp = (otp: string) => {
+    if (!otp) return undefined;
+    return `${"*".repeat(Math.max(otp.length - 1, 0))}${otp.slice(-1)}`;
+  };
 
   const validateAddress = () => {
     const errors: Partial<Record<keyof Address, string>> = {};
@@ -414,14 +494,24 @@ export default function Checkout() {
 
   const handleGatewayOTP = (code: string): boolean => {
     if (code === "000000") return false;
+    const paymentPayload: Order["payment"] = {
+      type: payment.type,
+      bank: payment.bank,
+      otpMasked: maskOtp(code),
+    };
+
+    if (payment.type === "upi") {
+      paymentPayload.upiIdMasked = maskUpiId(payment.upiId);
+    }
+
+    if (payment.type === "card") {
+      paymentPayload.cardLast4 = cardLast4 || undefined;
+      paymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
+    }
+
     const order = placeOrder({
       items, address,
-      payment: {
-        type: payment.type,
-        upiId: payment.upiId,
-        cardLast4: payment.cardNumber?.replace(/\s/g, "").slice(-4),
-        bank: payment.bank,
-      },
+      payment: paymentPayload,
       subtotal: total, deliveryCharge, totalAmount: finalAmount, savings,
     });
     setPlacedOrder(order);
@@ -432,25 +522,33 @@ export default function Checkout() {
 
   const formatCard = (v: string) => v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
   const formatExpiry = (v: string) => v.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})(\d)/, "$1/$2");
+  const successPaymentLabel =
+    placedOrder?.payment.type === "upi"
+      ? `UPI (${placedOrder.payment.upiIdMasked || "masked"})`
+      : placedOrder?.payment.type === "card"
+        ? placedOrder.payment.cardMasked || `Card **** ${placedOrder.payment.cardLast4 || "XXXX"}`
+        : placedOrder?.payment.type === "netbanking"
+          ? `Net Banking (${placedOrder.payment.bank || "Selected Bank"})`
+          : "Cash on Delivery";
 
   // ── Full-page gateway screens ─────────────────────────────────────────────
-  if (currentStep === "processing") {
+  if (currentStep === "processing" && !orderPlaced) {
     return (
       <GatewayProcessing
         amount={finalAmount}
-        cardLast4={payment.cardNumber?.replace(/\s/g, "").slice(-4) || "0000"}
+        cardLast4={cardLast4 || "0000"}
         cardName={payment.cardName || address.name || "CARD HOLDER"}
         onDone={handleProcessingDone}
       />
     );
   }
 
-  if (currentStep === "gateway_otp") {
+  if (currentStep === "gateway_otp" && !orderPlaced) {
     return (
       <GatewayOTP
         amount={finalAmount}
         phone={address.phone}
-        cardLast4={payment.cardNumber?.replace(/\s/g, "").slice(-4) || "0000"}
+        cardLast4={cardLast4 || "0000"}
         onVerify={handleGatewayOTP}
       />
     );
@@ -483,7 +581,7 @@ export default function Checkout() {
               <div className="flex justify-between text-gray-600">
                 <span>Payment</span>
                 <span className="font-medium text-gray-800 capitalize">
-                  {payment.type === "upi" ? "UPI" : payment.type === "card" ? `Card •••• ${payment.cardNumber?.replace(/\s/g, "").slice(-4) || "XXXX"}` : payment.type === "netbanking" ? "Net Banking" : "Cash on Delivery"}
+                  {successPaymentLabel}
                 </span>
               </div>
               <div className="flex justify-between font-bold text-gray-900 border-t border-blue-200 pt-2">

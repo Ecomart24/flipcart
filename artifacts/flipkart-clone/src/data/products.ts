@@ -194,7 +194,410 @@ const electronics: Product[] = [
   { id: 8, name: "Canon EOS R50 Mirrorless Camera", price: 59990, originalPrice: 79990, discount: 25, rating: 4.6, reviews: 2134, image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=400&fit=crop&q=80", category: "Cameras", brand: "Canon", description: "Canon EOS R50 compact mirrorless camera perfect for beginners and content creators.", highlights: ["24.2MP CMOS Sensor", "4K Video", "Subject Detection AF", "Vari-angle LCD"], inStock: false },
 ];
 
-export const products: Product[] = [...electronics, ...fashionCosmetics];
+const importedFlipkartSaleProducts: Product[] = [
+    {
+        "id":  1001,
+        "name":  "Comfortable Gaming Chair Ergonomic Game Chair Gaming With High Quality For Daily and Electronic Sports",
+        "price":  449,
+        "originalPrice":  1299,
+        "discount":  65,
+        "rating":  4.8,
+        "reviews":  3078,
+        "image":  "https://m.media-amazon.com/images/I/31dOeiQIEXL._SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Comfortable Gaming Chair Ergonomic Game Chair Gaming With High Quality For Daily and Electronic Sports",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1002,
+        "name":  "Wholesale Luxury Pu Covered Cushions High Back Swivel Lounge Chair Gamer Racing Gaming Chair",
+        "price":  599,
+        "originalPrice":  1299,
+        "discount":  54,
+        "rating":  4.4,
+        "reviews":  2590,
+        "image":  "https://s.alicdn.com/@sc04/kf/H96e6b2ff86e144aea56bea7f7df080b4C.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Wholesale Luxury Pu Covered Cushions High Back Swivel Lounge Chair Gamer Racing Gaming Chair",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1003,
+        "name":  "Swivel Executive Commercial Furniture High End Adjustable Executive Lift Office Chair with footstool",
+        "price":  459,
+        "originalPrice":  1299,
+        "discount":  65,
+        "rating":  4.3,
+        "reviews":  3966,
+        "image":  "https://m.media-amazon.com/images/I/41yetwc0MWL._SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Swivel Executive Commercial Furniture High End Adjustable Executive Lift Office Chair with footstool",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1004,
+        "name":  "Foldable Kids Beginner Flying Toy RC HD Image Transmission Mini Drone Camera 4k Video Plastic Brushless Motor Hand Control 100m",
+        "price":  479,
+        "originalPrice":  1299,
+        "discount":  63,
+        "rating":  3.7,
+        "reviews":  4314,
+        "image":  "https://m.media-amazon.com/images/I/41ff2jcrXDL._SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Foldable Kids Beginner Flying Toy RC HD Image Transmission Mini Drone Camera 4k Video Plastic Brushless Motor Hand Control 100m",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1005,
+        "name":  "Portable Rc Small Drone Mini Remote Pocket Drone Mini 3 V2 Tiny Drone with Camera 4K 80m WIFI Real Image Transmission",
+        "price":  529,
+        "originalPrice":  1299,
+        "discount":  59,
+        "rating":  4.3,
+        "reviews":  178,
+        "image":  "https://s.alicdn.com/@sc04/kf/H9fb3b0c6ffb04b3ea04fb5353a150f0cE.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Portable Rc Small Drone Mini Remote Pocket Drone Mini 3 V2 Tiny Drone with Camera 4K 80m WIFI Real Image Transmission",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1006,
+        "name":  "New Mini Remote Control Drone With Camera Long Flight Time Wifi FPV Foldable Quadcopter Drone UAV Kit",
+        "price":  459,
+        "originalPrice":  1299,
+        "discount":  65,
+        "rating":  4.4,
+        "reviews":  4749,
+        "image":  "https://s.alicdn.com/@sc04/kf/H5d023e5ae1b041b98730eca9764f29b0I.png_720x720q50.png",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "New Mini Remote Control Drone With Camera Long Flight Time Wifi FPV Foldable Quadcopter Drone UAV Kit",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1007,
+        "name":  "Viewpro 6 axis waterproof rotary wing aircraft/unmanned aerial vehicle (uav) uav folding carbon fiber body framework investigati",
+        "price":  529,
+        "originalPrice":  1299,
+        "discount":  59,
+        "rating":  4.4,
+        "reviews":  1649,
+        "image":  "https://s.alicdn.com/@sc04/kf/H3218dc2c517043c9b3acb2c08d61afefv.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Viewpro 6 axis waterproof rotary wing aircraft/unmanned aerial vehicle (uav) uav folding carbon fiber body framework investigati",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1008,
+        "name":  "K105max 4 sides obstacle avoidance mini RC drone for kids remote control with 4K Dual camera small",
+        "price":  529,
+        "originalPrice":  1299,
+        "discount":  59,
+        "rating":  5,
+        "reviews":  2990,
+        "image":  "https://s.alicdn.com/@sc04/kf/H21444ee3e2304d0d9c0a9f27e0930195V.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "K105max 4 sides obstacle avoidance mini RC drone for kids remote control with 4K Dual camera small",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1009,
+        "name":  "Dropshipping 4 k hd 360 degrees rotation dual cameras, remote control drones outdoor high-definition aerial photographic film",
+        "price":  449,
+        "originalPrice":  1299,
+        "discount":  65,
+        "rating":  4.9,
+        "reviews":  4593,
+        "image":  "https://s.alicdn.com/@sc04/kf/H844e43b136754e1a944deadfafeb601aq.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Dropshipping 4 k hd 360 degrees rotation dual cameras, remote control drones outdoor high-definition aerial photographic film",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1010,
+        "name":  "licensed TOYOTA HILUX Ride On Kids Electric Riding Car Battery Toy Car Electric Cars For Children To Drive",
+        "price":  499,
+        "originalPrice":  1299,
+        "discount":  62,
+        "rating":  4.4,
+        "reviews":  1947,
+        "image":  "https://m.media-amazon.com/images/I/71uH2ujloqL._AC_SX679_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "licensed TOYOTA HILUX Ride On Kids Electric Riding Car Battery Toy Car Electric Cars For Children To Drive",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1011,
+        "name":  "Children\u0027s Remote Control Toys With Safety Belt 4 Plastic Wheels Pink For 3 Years Kids Electric Car For Baby Girl",
+        "price":  529,
+        "originalPrice":  1299,
+        "discount":  59,
+        "rating":  4,
+        "reviews":  2099,
+        "image":  "https://s.alicdn.com/@sc04/kf/Hccfec44381484d69b485c7673f596ea0M.png_720x720q50.png",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Children\u0027s Remote Control Toys With Safety Belt 4 Plastic Wheels Pink For 3 Years Kids Electric Car For Baby Girl",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1012,
+        "name":  "Best quality  kids wholesale fashion electric car baby car toy child ride on car excavator toy",
+        "price":  529,
+        "originalPrice":  1299,
+        "discount":  59,
+        "rating":  4,
+        "reviews":  224,
+        "image":  "https://s.alicdn.com/@sc04/kf/H1b54030d18394b2d9e123e5a3747537eT.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Best quality  kids wholesale fashion electric car baby car toy child ride on car excavator toy",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1013,
+        "name":  "Children\u0027s electric vehicle four-wheel four-wheel drive off-road remote control car can sit baby toys super large two-seater car",
+        "price":  599,
+        "originalPrice":  1299,
+        "discount":  54,
+        "rating":  4.2,
+        "reviews":  3544,
+        "image":  "https://m.media-amazon.com/images/I/813gr34pCgL.__AC_SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Children\u0027s electric vehicle four-wheel four-wheel drive off-road remote control car can sit baby toys super large two-seater car",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1014,
+        "name":  "12v License Mercedes Kids Electric Ride On Cars Children Toys Battery Car With Remote",
+        "price":  499,
+        "originalPrice":  1299,
+        "discount":  62,
+        "rating":  4.6,
+        "reviews":  3313,
+        "image":  "https://m.media-amazon.com/images/I/51m-iUNUXKL._SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "12v License Mercedes Kids Electric Ride On Cars Children Toys Battery Car With Remote",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1015,
+        "name":  "Top sales 2 in 1 sleep Tracker wireless Smart Wristband M1 Smart Watch with tws earbuds",
+        "price":  499,
+        "originalPrice":  1299,
+        "discount":  62,
+        "rating":  3.8,
+        "reviews":  685,
+        "image":  "https://s.alicdn.com/@sc04/kf/H337b8f4a99054c1ea4045bd71ca6c351H.png_720x720q50.png",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Top sales 2 in 1 sleep Tracker wireless Smart Wristband M1 Smart Watch with tws earbuds",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1016,
+        "name":  "t92 tws 2-in-1 jm03 Heart Rate 2 in 1 TWS reloj inteligente smartwatch Smart Watch with bluetooth headphones headsets earbuds",
+        "price":  549,
+        "originalPrice":  1299,
+        "discount":  58,
+        "rating":  3.8,
+        "reviews":  984,
+        "image":  "https://m.media-amazon.com/images/I/61KPWM97guL.__AC_SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "t92 tws 2-in-1 jm03 Heart Rate 2 in 1 TWS reloj inteligente smartwatch Smart Watch with bluetooth headphones headsets earbuds",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1017,
+        "name":  "Noise Canceling Bluetooth smart earphones wireless earphone 5.2 Super Bass waterproof music tws small headphones with Microphone",
+        "price":  449,
+        "originalPrice":  1299,
+        "discount":  65,
+        "rating":  4,
+        "reviews":  372,
+        "image":  "https://m.media-amazon.com/images/I/31R8vyNVWWL._SX300_SY300_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Noise Canceling Bluetooth smart earphones wireless earphone 5.2 Super Bass waterproof music tws small headphones with Microphone",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1018,
+        "name":  "RIO TOOL Private Custom High Quality 72 Pcs 1/4 \u0026 1/2  deep socket set tool kit set for car",
+        "price":  599,
+        "originalPrice":  1299,
+        "discount":  54,
+        "rating":  4.8,
+        "reviews":  1013,
+        "image":  "https://m.media-amazon.com/images/I/51RnuiL-ytL._SY445_SX342_QL70_FMwebp_.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "RIO TOOL Private Custom High Quality 72 Pcs 1/4 \u0026 1/2  deep socket set tool kit set for car",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1019,
+        "name":  "Mulinsen 21V Cordless Lithium-ion Battery Combo Kit Power Drills Machine Tool Sets",
+        "price":  489,
+        "originalPrice":  1299,
+        "discount":  62,
+        "rating":  3.7,
+        "reviews":  1979,
+        "image":  "https://s.alicdn.com/@sc04/kf/Hb044cf41717c478cb0a4302f3c376f57A.jpg_720x720q50.jpg",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "Mulinsen 21V Cordless Lithium-ion Battery Combo Kit Power Drills Machine Tool Sets",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    },
+    {
+        "id":  1020,
+        "name":  "ODETOOLS 5 Ton DC 12V Automatic electric car jack",
+        "price":  539,
+        "originalPrice":  1299,
+        "discount":  59,
+        "rating":  4.9,
+        "reviews":  5025,
+        "image":  "https://s.alicdn.com/@sc04/kf/Hd9f79dd879564b3d92ea98e771ca1cfdI.png_720x720q50.png",
+        "category":  "Electronics",
+        "brand":  "Flipkart Sale",
+        "description":  "ODETOOLS 5 Ton DC 12V Automatic electric car jack",
+        "highlights":  [
+                           "Imported from flipkart-sale.replit.app",
+                           "Limited time deal",
+                           "Customer-rated product",
+                           "Fast shipping eligible"
+                       ],
+        "inStock":  true
+    }
+];
+
+export const products: Product[] = [...importedFlipkartSaleProducts];
 
 export const categories = [
   { name: "Mobiles", icon: "📱" },
@@ -219,3 +622,5 @@ export const banners = [
   { id: 3, title: "Cosmetics Sale", subtitle: "Top beauty brands up to 70% off", bg: "from-pink-500 to-rose-600", cta: "Shop Beauty" },
   { id: 4, title: "Mega Appliance Sale", subtitle: "No cost EMI + Extra 10% bank discount", bg: "from-orange-500 to-red-600", cta: "Grab Deal" },
 ];
+
+
