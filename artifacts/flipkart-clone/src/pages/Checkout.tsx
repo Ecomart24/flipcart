@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useState, useEffect, useRef } from "react";
+import { Link } from "wouter";
 import {
   CheckCircle, MapPin, CreditCard, Smartphone, ChevronRight,
-  Lock, ShieldCheck, Truck, Package, ArrowLeft
+  Lock, ShieldCheck, Truck, Package, ArrowLeft, Wifi, AlertTriangle
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useCart, clearCart } from "@/store/cartStore";
 import { placeOrder, Order } from "@/store/orderStore";
 
-type Step = "address" | "payment" | "otp";
+type Step = "address" | "payment" | "processing" | "gateway_otp";
 
 interface Address {
   name: string;
@@ -28,223 +28,473 @@ interface PaymentMethod {
   cardCVV?: string;
   cardName?: string;
   bank?: string;
+  cardTab?: "debit" | "credit";
 }
 
 const STATES = [
-  "Andhra Pradesh", "Delhi", "Gujarat", "Karnataka", "Kerala",
-  "Maharashtra", "Punjab", "Rajasthan", "Tamil Nadu", "Uttar Pradesh", "West Bengal"
+  "Andhra Pradesh", "Assam", "Bihar", "Chandigarh", "Delhi", "Goa", "Gujarat",
+  "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala",
+  "Madhya Pradesh", "Maharashtra", "Odisha", "Punjab", "Rajasthan",
+  "Tamil Nadu", "Telangana", "Uttar Pradesh", "Uttarakhand", "West Bengal"
 ];
 
-const BANKS = ["HDFC Bank", "ICICI Bank", "State Bank of India", "Axis Bank", "Kotak Mahindra Bank", "Yes Bank"];
+const BANKS = [
+  "State Bank of India", "HDFC Bank", "ICICI Bank", "Axis Bank",
+  "Bank of Baroda", "Kotak Mahindra Bank", "Punjab National Bank",
+  "Central Bank of India", "Canara Bank", "Union Bank of India", "Yes Bank"
+];
 
+// ── Bank Gateway: Processing Screen ────────────────────────────────────────
+function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
+  amount: number; cardLast4: string; cardName: string; onDone: () => void;
+}) {
+  const [progress, setProgress] = useState(0);
+  const [statusMsg, setStatusMsg] = useState("Initializing secure TLS connection...");
+  const done = useRef(false);
+
+  useEffect(() => {
+    const msgs = [
+      { at: 500,  msg: "Initializing secure TLS connection...", pct: 9  },
+      { at: 1200, msg: "Verifying card details...",              pct: 28 },
+      { at: 2000, msg: "Authenticating with bank...",            pct: 55 },
+      { at: 2700, msg: "Requesting OTP verification...",         pct: 78 },
+      { at: 3200, msg: "Redirecting to bank OTP page...",        pct: 95 },
+    ];
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    msgs.forEach(({ at, msg, pct }) => {
+      timers.push(setTimeout(() => { setStatusMsg(msg); setProgress(pct); }, at));
+    });
+    timers.push(setTimeout(() => { if (!done.current) { done.current = true; onDone(); } }, 3700));
+    return () => timers.forEach(clearTimeout);
+  }, [onDone]);
+
+  return (
+    <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#e8f0fe 0%,#f0f4ff 100%)" }}>
+      {/* Bank header */}
+      <div className="bg-[#1a2744] px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-white font-bold text-sm">Flipkart Secure Pay</span>
+              <span className="bg-green-500 text-white text-xs px-1.5 py-0.5 rounded font-semibold">VERIFIED</span>
+            </div>
+            <p className="text-gray-400 text-xs">SECURED PAYMENT GATEWAY</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-gray-400 text-xs">TOTAL AMOUNT</p>
+          <p className="text-white font-bold text-xl">₹{amount.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {/* Security strip */}
+      <div className="bg-[#243057] px-6 py-2 flex items-center justify-center gap-6 text-xs text-gray-300">
+        <span className="flex items-center gap-1"><span className="text-green-400">●</span> 256-BIT SSL</span>
+        <span className="text-gray-500">|</span>
+        <span className="flex items-center gap-1"><span className="text-yellow-400">🔒</span> PCI DSS LEVEL 1</span>
+        <span className="text-gray-500">|</span>
+        <span className="flex items-center gap-1"><span className="text-green-400">✓</span> RBI APPROVED</span>
+        <span className="text-gray-500">|</span>
+        <span className="flex items-center gap-1"><span className="text-blue-400">🛡</span> 3D SECURE</span>
+      </div>
+
+      {/* Main content */}
+      <div className="flex items-center justify-center min-h-[calc(100vh-120px)] py-10">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+          {/* Modal header */}
+          <div className="bg-[#2874f0] px-5 py-3 flex items-center justify-between">
+            <span className="text-white font-bold text-sm tracking-wide uppercase">Payment Processing</span>
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-blue-400" />
+              <div className="w-3 h-3 rounded-full bg-blue-400" />
+              <div className="w-3 h-3 rounded-full bg-blue-400" />
+            </div>
+          </div>
+
+          <div className="p-6">
+            {/* Spinner + status */}
+            <div className="flex items-start gap-4 mb-5">
+              <div className="relative w-10 h-10 flex-shrink-0">
+                <svg className="w-10 h-10 animate-spin text-blue-600" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                  <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-gray-800 font-medium text-sm">{statusMsg}</p>
+                <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  Do not press Back or Refresh
+                </p>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mb-1">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-700"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-400 mb-5">
+              <span>Processing...</span>
+              <span>{progress}%</span>
+            </div>
+
+            {/* Card visual */}
+            <div className="bg-gray-900 rounded-xl p-4 text-white mb-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/5 -translate-y-10 translate-x-10" />
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-8 h-6 bg-yellow-400 rounded-sm" />
+                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded font-bold">DEBIT</span>
+              </div>
+              <p className="font-mono text-sm tracking-widest mb-3">
+                •••• •••• •••• {cardLast4 || "0000"}
+              </p>
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>{cardName || "CARD HOLDER"}</span>
+              </div>
+            </div>
+
+            {/* Trust badges */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <span className="bg-blue-900 text-white text-xs px-2 py-0.5 rounded font-bold">VISA</span>
+              <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold">MC</span>
+              <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-bold">RuPay</span>
+              <span className="border border-gray-300 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">PCI DSS</span>
+              <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded font-bold">3D SECURE</span>
+              <span className="border border-gray-300 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">NPCI</span>
+            </div>
+            <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-400">
+              <span>🔒 256-bit SSL Encryption</span>
+              <span>ISO 27001 Certified</span>
+              <span>RBI Licensed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pb-4 text-xs text-gray-400">
+        Powered by <span className="text-blue-600 font-bold">Flipkart</span> Secure Pay &nbsp;|&nbsp; 🔵 PCI DSS &nbsp;|&nbsp; NPCI
+      </div>
+    </div>
+  );
+}
+
+// ── Bank Gateway: OTP Screen ────────────────────────────────────────────────
+function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
+  amount: number; phone: string; cardLast4: string;
+  onVerify: (otp: string) => boolean;
+}) {
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [error, setError] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const maskedPhone = phone ? `+91 XXXXX${phone.slice(-5)}` : "+91 XXXXXXXXXX";
+
+  const handleOtpChange = (val: string, i: number) => {
+    const d = val.replace(/\D/g, "").slice(0, 1);
+    const next = [...otp];
+    next[i] = d;
+    setOtp(next);
+    if (d && i < 5) {
+      document.getElementById(`gotp-${i + 1}`)?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, i: number) => {
+    if (e.key === "Backspace" && !otp[i] && i > 0) {
+      document.getElementById(`gotp-${i - 1}`)?.focus();
+    }
+  };
+
+  const handleVerify = () => {
+    const code = otp.join("");
+    if (code.length < 6) { setError("Please enter all 6 digits"); return; }
+    setVerifying(true);
+    setError("");
+    setTimeout(() => {
+      setVerifying(false);
+      const ok = onVerify(code);
+      if (!ok) { setError("Incorrect OTP. Please try again."); setOtp(["","","","","",""]); document.getElementById("gotp-0")?.focus(); }
+    }, 1500);
+  };
+
+  return (
+    <div className="min-h-screen" style={{ background: "linear-gradient(135deg,#e8f0fe 0%,#f0f4ff 100%)" }}>
+      {/* Bank header */}
+      <div className="bg-[#1a2744] px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-white font-bold text-sm">Flipkart Secure Pay</span>
+              <span className="bg-green-500 text-white text-xs px-1.5 py-0.5 rounded font-semibold">VERIFIED</span>
+            </div>
+            <p className="text-gray-400 text-xs">2-FACTOR AUTHENTICATION</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-gray-400 text-xs">TOTAL AMOUNT</p>
+          <p className="text-white font-bold text-xl">₹{amount.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {/* Security strip */}
+      <div className="bg-[#243057] px-6 py-2 flex items-center justify-center gap-6 text-xs text-gray-300">
+        <span className="flex items-center gap-1"><span className="text-yellow-400">⚡</span> OTP VERIFICATION REQUIRED</span>
+        <span className="text-gray-500">|</span>
+        <span className="flex items-center gap-1"><span className="text-green-400">🔒</span> END-TO-END ENCRYPTED</span>
+        <span className="text-gray-500">|</span>
+        <span className="flex items-center gap-1"><span className="text-blue-400">🛡</span> 3D SECURE</span>
+      </div>
+
+      {/* Main content */}
+      <div className="flex items-center justify-center min-h-[calc(100vh-120px)] py-10">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+          {/* Modal header */}
+          <div className="bg-[#2874f0] px-5 py-4 text-center">
+            <p className="text-blue-100 text-xs font-semibold uppercase tracking-widest mb-1">OTP Verification</p>
+            <h2 className="text-white font-bold text-lg">Verify Your Payment</h2>
+          </div>
+
+          <div className="p-6">
+            {/* OTP sent info */}
+            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-5 flex items-start gap-3">
+              <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center flex-shrink-0">
+                <Smartphone className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">OTP Sent Successfully</p>
+                <p className="text-gray-500 text-xs mt-0.5">A 6-digit OTP has been sent to</p>
+                <p className="text-blue-600 font-bold text-sm">{maskedPhone}</p>
+                <p className="text-gray-400 text-xs mt-0.5">registered with your Card (•••• •••• •••• {cardLast4 || "XXXX"})</p>
+              </div>
+            </div>
+
+            {/* OTP inputs */}
+            <p className="text-xs font-semibold text-gray-600 mb-3">Enter 6-digit OTP</p>
+            <div className="flex gap-2 justify-center mb-2">
+              {otp.map((d, i) => (
+                <input
+                  key={i}
+                  id={`gotp-${i}`}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={d}
+                  onChange={(e) => handleOtpChange(e.target.value, i)}
+                  onKeyDown={(e) => handleKeyDown(e, i)}
+                  className={`w-11 h-12 text-center text-lg font-bold border-2 rounded-lg focus:outline-none transition-colors ${
+                    d ? "border-blue-500 text-blue-700" : "border-gray-300 text-gray-800"
+                  } focus:border-blue-500`}
+                  data-testid={`input-gateway-otp-${i}`}
+                />
+              ))}
+            </div>
+            <div className="flex gap-1 justify-center mb-1">
+              {otp.map((_, i) => <div key={i} className="w-11 flex justify-center"><div className="w-8 border-b-2 border-gray-200" /></div>)}
+            </div>
+
+            {error && <p className="text-red-500 text-xs text-center mt-2 mb-1">{error}</p>}
+
+            <button
+              onClick={() => { setOtp(["","","","","",""]); setError(""); setTimeout(() => document.getElementById("gotp-0")?.focus(), 50); }}
+              className="block mx-auto text-blue-600 text-sm font-semibold hover:underline mt-3 mb-5"
+            >
+              Resend OTP
+            </button>
+
+            {/* Verify button */}
+            <button
+              onClick={handleVerify}
+              disabled={verifying || otp.join("").length < 6}
+              className="w-full bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 text-gray-700 font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
+              data-testid="button-gateway-verify"
+            >
+              {verifying ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                  Verifying...
+                </>
+              ) : (
+                <>✓ Verify &amp; Pay ₹{amount.toLocaleString()}</>
+              )}
+            </button>
+
+            {/* Card info */}
+            <div className="mt-5 pt-4 border-t border-gray-100">
+              <p className="text-xs text-gray-500 font-semibold mb-1">CARD DEBIT</p>
+              <p className="font-mono text-sm text-gray-700">•••• •••• •••• {cardLast4 || "XXXX"}</p>
+              <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                <span>🔒 256-bit SSL</span>
+                <span>PCI DSS</span>
+                <span>RBI Approved</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pb-4 text-xs text-gray-400">
+        Powered by <span className="text-blue-600 font-bold">Flipkart</span> Secure Pay &nbsp;|&nbsp; 🔵 PCI DSS &nbsp;|&nbsp; NPCI
+      </div>
+    </div>
+  );
+}
+
+// ── Main Checkout Component ─────────────────────────────────────────────────
 export default function Checkout() {
   const { items, total } = useCart();
-  const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState<Step>("address");
-  const [completed, setCompleted] = useState<Step[]>([]);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
 
-  // Step 1: Address
   const [address, setAddress] = useState<Address>({
     name: "", phone: "", pincode: "", city: "", state: "", address: "", addressType: "Home"
   });
-  const [addressErrors, setAddressErrors] = useState<Partial<Address>>({});
+  const [addressErrors, setAddressErrors] = useState<Partial<Record<keyof Address, string>>>({});
 
-  // Step 2: Payment
-  const [payment, setPayment] = useState<PaymentMethod>({ type: "upi", upiId: "" });
+  const [payment, setPayment] = useState<PaymentMethod>({ type: "card", cardTab: "debit" });
   const [paymentError, setPaymentError] = useState("");
+  const [saveCard, setSaveCard] = useState(false);
 
-  // Step 3: OTP
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [otpError, setOtpError] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerifying, setOtpVerifying] = useState(false);
-
-  const savings = items.reduce((sum, i) => sum + (i.originalPrice - i.price) * i.quantity, 0);
+  const savings = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
   const deliveryCharge = total > 499 ? 0 : 40;
   const finalAmount = total + deliveryCharge;
 
-  const steps: { key: Step; label: string; icon: React.ReactNode }[] = [
-    { key: "address", label: "Delivery Address", icon: <MapPin className="w-4 h-4" /> },
-    { key: "payment", label: "Payment", icon: <CreditCard className="w-4 h-4" /> },
-    { key: "otp", label: "OTP Verification", icon: <Smartphone className="w-4 h-4" /> },
-  ];
-
   const validateAddress = () => {
-    const errors: Partial<Address> = {};
+    const errors: Partial<Record<keyof Address, string>> = {};
     if (!address.name.trim()) errors.name = "Name is required";
-    if (!/^\d{10}$/.test(address.phone)) errors.phone = "Enter valid 10-digit phone number";
-    if (!/^\d{6}$/.test(address.pincode)) errors.pincode = "Enter valid 6-digit pincode";
+    if (!/^\d{10}$/.test(address.phone)) errors.phone = "Enter valid 10-digit number";
+    if (!/^\d{6}$/.test(address.pincode)) errors.pincode = "Enter 6-digit pincode";
     if (!address.city.trim()) errors.city = "City is required";
-    if (!address.state) errors.state = "State is required";
+    if (!address.state) errors.state = "Select a state";
     if (!address.address.trim()) errors.address = "Address is required";
     setAddressErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const validatePayment = () => {
-    if (payment.type === "upi") {
-      if (!payment.upiId || !/^[\w.-]+@[\w.-]+$/.test(payment.upiId)) {
-        setPaymentError("Enter a valid UPI ID (e.g. name@bank)");
-        return false;
-      }
-    } else if (payment.type === "card") {
-      if (!payment.cardNumber || payment.cardNumber.replace(/\s/g, "").length < 16) {
-        setPaymentError("Enter a valid 16-digit card number");
-        return false;
-      }
-      if (!payment.cardExpiry || !/^\d{2}\/\d{2}$/.test(payment.cardExpiry)) {
-        setPaymentError("Enter expiry in MM/YY format");
-        return false;
-      }
-      if (!payment.cardCVV || payment.cardCVV.length < 3) {
-        setPaymentError("Enter valid CVV");
-        return false;
-      }
-      if (!payment.cardName?.trim()) {
-        setPaymentError("Enter card holder name");
-        return false;
-      }
-    } else if (payment.type === "netbanking") {
-      if (!payment.bank) {
-        setPaymentError("Select a bank");
-        return false;
-      }
+  const handleAddressNext = () => {
+    if (validateAddress()) setCurrentStep("payment");
+  };
+
+  const handlePayNow = () => {
+    if (payment.type === "card" && !payment.cardNumber?.replace(/\s/g, "").match(/^\d{16}$/)) {
+      setPaymentError("Please enter a valid 16-digit card number"); return;
+    }
+    if (payment.type === "upi" && !payment.upiId) {
+      setPaymentError("Please enter your UPI ID"); return;
     }
     setPaymentError("");
+    if (payment.type === "cod") {
+      // For COD, place order directly
+      const order = placeOrder({
+        items, address,
+        payment: { type: "cod" },
+        subtotal: total, deliveryCharge, totalAmount: finalAmount, savings,
+      });
+      setPlacedOrder(order);
+      clearCart();
+      setOrderPlaced(true);
+    } else {
+      setCurrentStep("processing");
+    }
+  };
+
+  const handleProcessingDone = () => setCurrentStep("gateway_otp");
+
+  const handleGatewayOTP = (code: string): boolean => {
+    if (code === "000000") return false;
+    const order = placeOrder({
+      items, address,
+      payment: {
+        type: payment.type,
+        upiId: payment.upiId,
+        cardLast4: payment.cardNumber?.replace(/\s/g, "").slice(-4),
+        bank: payment.bank,
+      },
+      subtotal: total, deliveryCharge, totalAmount: finalAmount, savings,
+    });
+    setPlacedOrder(order);
+    clearCart();
+    setOrderPlaced(true);
     return true;
   };
 
-  const handleAddressNext = () => {
-    if (validateAddress()) {
-      setCompleted([...completed, "address"]);
-      setCurrentStep("payment");
-      // Auto-send OTP info
-      setOtpSent(false);
-    }
-  };
+  const formatCard = (v: string) => v.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
+  const formatExpiry = (v: string) => v.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})(\d)/, "$1/$2");
 
-  const handlePaymentNext = () => {
-    if (validatePayment()) {
-      setCompleted([...completed, "payment"]);
-      setCurrentStep("otp");
-      setOtpSent(true);
-    }
-  };
+  // ── Full-page gateway screens ─────────────────────────────────────────────
+  if (currentStep === "processing") {
+    return (
+      <GatewayProcessing
+        amount={finalAmount}
+        cardLast4={payment.cardNumber?.replace(/\s/g, "").slice(-4) || "0000"}
+        cardName={payment.cardName || address.name || "CARD HOLDER"}
+        onDone={handleProcessingDone}
+      />
+    );
+  }
 
-  const handleOtpChange = (value: string, index: number) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-    if (value && index < 5) {
-      const next = document.getElementById(`otp-${index + 1}`);
-      next?.focus();
-    }
-  };
+  if (currentStep === "gateway_otp") {
+    return (
+      <GatewayOTP
+        amount={finalAmount}
+        phone={address.phone}
+        cardLast4={payment.cardNumber?.replace(/\s/g, "").slice(-4) || "0000"}
+        onVerify={handleGatewayOTP}
+      />
+    );
+  }
 
-  const handleOtpKeyDown = (e: React.KeyboardEvent, index: number) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      const prev = document.getElementById(`otp-${index - 1}`);
-      prev?.focus();
-    }
-  };
-
-  const handleVerifyOtp = () => {
-    const enteredOtp = otp.join("");
-    if (enteredOtp.length < 6) {
-      setOtpError("Please enter all 6 digits");
-      return;
-    }
-    // Demo: accept any 6-digit OTP, or "123456" as the correct one
-    setOtpVerifying(true);
-    setTimeout(() => {
-      setOtpVerifying(false);
-      if (enteredOtp === "000000") {
-        setOtpError("Invalid OTP. Please try again.");
-      } else {
-        const savings = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
-        const deliveryCharge = total > 499 ? 0 : 40;
-        const order = placeOrder({
-          items,
-          address,
-          payment: {
-            type: payment.type,
-            upiId: payment.upiId,
-            cardLast4: payment.cardNumber ? payment.cardNumber.replace(/\s/g, "").slice(-4) : undefined,
-            bank: payment.bank,
-          },
-          subtotal: total,
-          deliveryCharge,
-          totalAmount: total + deliveryCharge,
-          savings,
-        });
-        setPlacedOrder(order);
-        clearCart();
-        setOrderPlaced(true);
-      }
-    }, 1500);
-  };
-
-  const resendOtp = () => {
-    setOtp(["", "", "", "", "", ""]);
-    setOtpError("");
-    setOtpSent(true);
-    document.getElementById("otp-0")?.focus();
-  };
-
-  const formatCard = (val: string) => {
-    return val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
-  };
-
-  const formatExpiry = (val: string) => {
-    return val.replace(/\D/g, "").slice(0, 4).replace(/^(\d{2})(\d)/, "$1/$2");
-  };
-
-  // Order success
-  if (orderPlaced) {
+  // ── Order success ─────────────────────────────────────────────────────────
+  if (orderPlaced && placedOrder) {
     return (
       <div className="min-h-screen bg-[#f1f3f6]">
         <Navbar />
         <div className="max-w-2xl mx-auto px-4 py-16 text-center" data-testid="order-success">
           <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Order Placed Successfully!</h1>
-            <p className="text-gray-500 mb-2">Your order has been placed and is being processed.</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Order Placed Successfully! 🎉</h1>
+            <p className="text-gray-500 mb-1">Your payment was verified and order is confirmed.</p>
             <p className="text-sm text-gray-400 mb-6">
-              Order ID: <span className="font-semibold text-gray-700">FK{Date.now().toString().slice(-8)}</span>
+              Order ID: <span className="font-bold text-blue-600">{placedOrder.orderId}</span>
             </p>
-
-            {/* Order summary */}
-            <div className="bg-blue-50 rounded-lg p-4 mb-6 text-left">
-              <div className="flex items-center gap-2 mb-3">
-                <Package className="w-5 h-5 text-blue-600" />
+            <div className="bg-blue-50 rounded-lg p-4 mb-6 text-left space-y-2 text-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Package className="w-4 h-4 text-blue-600" />
                 <span className="font-semibold text-blue-700">Order Summary</span>
               </div>
-              <div className="space-y-2 text-sm text-gray-600">
-                <div className="flex justify-between">
-                  <span>Delivery Address</span>
-                  <span className="font-medium text-gray-800">{address.name}, {address.city}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Payment</span>
-                  <span className="font-medium text-gray-800 capitalize">{payment.type === "upi" ? "UPI" : payment.type === "card" ? "Card" : payment.type === "netbanking" ? "Net Banking" : "Cash on Delivery"}</span>
-                </div>
-                <div className="flex justify-between font-bold text-gray-900 border-t border-blue-200 pt-2 mt-2">
-                  <span>Total Paid</span>
-                  <span>₹{finalAmount.toLocaleString()}</span>
-                </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Deliver to</span>
+                <span className="font-medium text-gray-800">{address.name}, {address.city}, {address.state}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Payment</span>
+                <span className="font-medium text-gray-800 capitalize">
+                  {payment.type === "upi" ? "UPI" : payment.type === "card" ? `Card •••• ${payment.cardNumber?.replace(/\s/g, "").slice(-4) || "XXXX"}` : payment.type === "netbanking" ? "Net Banking" : "Cash on Delivery"}
+                </span>
+              </div>
+              <div className="flex justify-between font-bold text-gray-900 border-t border-blue-200 pt-2">
+                <span>Total Paid</span>
+                <span>₹{finalAmount.toLocaleString()}</span>
               </div>
             </div>
-
             <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-6">
               <Truck className="w-4 h-4 text-green-500" />
               <span>Expected delivery by <strong>{new Date(Date.now() + 3 * 86400000).toLocaleDateString("en-IN", { weekday: "long", month: "short", day: "numeric" })}</strong></span>
             </div>
-
             <Link href="/">
               <button className="bg-[#2874f0] text-white px-8 py-3 rounded font-semibold hover:bg-blue-700 transition-colors" data-testid="button-continue-shopping">
                 Continue Shopping
@@ -262,499 +512,384 @@ export default function Checkout() {
         <Navbar />
         <div className="max-w-2xl mx-auto px-4 py-16 text-center">
           <p className="text-gray-600 mb-4">Your cart is empty. Add some products first!</p>
-          <Link href="/">
-            <button className="bg-[#2874f0] text-white px-6 py-2 rounded font-semibold">Shop Now</button>
-          </Link>
+          <Link href="/"><button className="bg-[#2874f0] text-white px-6 py-2 rounded font-semibold">Shop Now</button></Link>
         </div>
       </div>
     );
   }
 
+  const checkoutSteps = [
+    { key: "address" as Step, label: "Delivery Address", icon: <MapPin className="w-4 h-4" /> },
+    { key: "payment" as Step, label: "Payment Method", icon: <CreditCard className="w-4 h-4" /> },
+  ];
+
   return (
     <div className="min-h-screen bg-[#f1f3f6]">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="grid md:grid-cols-3 gap-4">
-          {/* Left: Steps */}
+      <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="grid md:grid-cols-3 gap-4 items-start">
+
+          {/* ── Left: Steps ── */}
           <div className="md:col-span-2 space-y-3">
             {/* Stepper */}
             <div className="bg-white rounded shadow-sm p-4">
-              <div className="flex items-center justify-between">
-                {steps.map((step, index) => {
-                  const isCompleted = completed.includes(step.key);
+              <div className="flex items-center">
+                {checkoutSteps.map((step, index) => {
+                  const isDone = (step.key === "address" && currentStep === "payment");
                   const isCurrent = currentStep === step.key;
                   return (
-                    <div key={step.key} className="flex-1 flex flex-col items-center" data-testid={`step-${step.key}`}>
-                      <div className="flex items-center w-full">
-                        {/* Line before */}
-                        {index > 0 && (
-                          <div className={`flex-1 h-0.5 ${isCompleted || completed.includes(steps[index - 1].key) ? "bg-[#2874f0]" : "bg-gray-200"}`} />
-                        )}
-                        {/* Circle */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                          isCompleted ? "bg-[#2874f0] text-white" :
+                    <div key={step.key} className="flex items-center flex-1">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all font-bold text-sm ${
+                          isDone ? "bg-[#2874f0] text-white" :
                           isCurrent ? "bg-[#2874f0] text-white ring-4 ring-blue-100" :
                           "bg-gray-200 text-gray-400"
                         }`}>
-                          {isCompleted ? <CheckCircle className="w-5 h-5" /> : step.icon}
+                          {isDone ? <CheckCircle className="w-5 h-5" /> : <span>{index + 1}</span>}
                         </div>
-                        {/* Line after */}
-                        {index < steps.length - 1 && (
-                          <div className={`flex-1 h-0.5 ${isCompleted ? "bg-[#2874f0]" : "bg-gray-200"}`} />
-                        )}
+                        <span className={`mt-1.5 text-xs font-semibold text-center ${isCurrent || isDone ? "text-[#2874f0]" : "text-gray-400"}`}>
+                          {step.label}
+                        </span>
                       </div>
-                      <span className={`mt-2 text-xs font-medium text-center ${isCurrent || isCompleted ? "text-[#2874f0]" : "text-gray-400"}`}>
-                        {step.label}
-                      </span>
+                      {index < checkoutSteps.length - 1 && (
+                        <div className={`flex-1 h-0.5 mx-2 mb-5 ${isDone ? "bg-[#2874f0]" : "bg-gray-200"}`} />
+                      )}
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Step 1: Address */}
-            <div className={`bg-white rounded shadow-sm transition-all ${currentStep === "address" ? "block" : "hidden"}`} data-testid="step-address-content">
-              <div className="p-4 border-b border-gray-100 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-[#2874f0]" />
-                <h2 className="text-base font-bold text-gray-800">Delivery Address</h2>
-              </div>
-              <div className="p-4 space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name *</label>
-                    <input
-                      type="text"
-                      value={address.name}
-                      onChange={(e) => setAddress({ ...address, name: e.target.value })}
-                      placeholder="Enter your full name"
-                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                      data-testid="input-name"
-                    />
-                    {addressErrors.name && <p className="text-red-500 text-xs mt-1">{addressErrors.name}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number *</label>
-                    <input
-                      type="tel"
-                      maxLength={10}
-                      value={address.phone}
-                      onChange={(e) => setAddress({ ...address, phone: e.target.value.replace(/\D/g, "") })}
-                      placeholder="10-digit mobile number"
-                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                      data-testid="input-phone"
-                    />
-                    {addressErrors.phone && <p className="text-red-500 text-xs mt-1">{addressErrors.phone}</p>}
-                  </div>
+            {/* ── STEP 1: Address ── */}
+            {currentStep === "address" && (
+              <div className="bg-white rounded shadow-sm" data-testid="step-address-content">
+                <div className="p-4 border-b border-gray-100 flex items-center gap-2 bg-[#2874f0] rounded-t">
+                  <MapPin className="w-5 h-5 text-white" />
+                  <h2 className="text-base font-bold text-white uppercase tracking-wide">Delivery Address</h2>
                 </div>
+                <div className="p-5 space-y-4">
+                  {/* Address tag display */}
+                  {address.name && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600 pb-3 border-b border-gray-100">
+                      <MapPin className="w-4 h-4 text-blue-500" />
+                      <span className="font-semibold text-gray-800">{address.name}</span>
+                      {address.phone && <span>· {address.phone}</span>}
+                      {address.city && <span>· {address.city}{address.state ? `, ${address.state}` : ""}{address.pincode ? ` — ${address.pincode}` : ""}</span>}
+                    </div>
+                  )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Address (House No, Street, Area) *</label>
-                  <textarea
-                    rows={2}
-                    value={address.address}
-                    onChange={(e) => setAddress({ ...address, address: e.target.value })}
-                    placeholder="House No., Building, Street, Area"
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 resize-none"
-                    data-testid="input-address"
-                  />
-                  {addressErrors.address && <p className="text-red-500 text-xs mt-1">{addressErrors.address}</p>}
-                </div>
-
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Pincode *</label>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={address.pincode}
-                      onChange={(e) => setAddress({ ...address, pincode: e.target.value.replace(/\D/g, "") })}
-                      placeholder="6-digit pincode"
-                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                      data-testid="input-pincode-checkout"
-                    />
-                    {addressErrors.pincode && <p className="text-red-500 text-xs mt-1">{addressErrors.pincode}</p>}
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Full Name *</label>
+                      <input type="text" value={address.name} onChange={(e) => setAddress({ ...address, name: e.target.value })} placeholder="Enter your full name" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" data-testid="input-name" />
+                      {addressErrors.name && <p className="text-red-500 text-xs mt-1">{addressErrors.name}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Phone Number *</label>
+                      <input type="tel" maxLength={10} value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value.replace(/\D/g, "") })} placeholder="10-digit mobile number" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" data-testid="input-phone" />
+                      {addressErrors.phone && <p className="text-red-500 text-xs mt-1">{addressErrors.phone}</p>}
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">City *</label>
-                    <input
-                      type="text"
-                      value={address.city}
-                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                      placeholder="City"
-                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                      data-testid="input-city"
-                    />
-                    {addressErrors.city && <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>}
+                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Address *</label>
+                    <textarea rows={2} value={address.address} onChange={(e) => setAddress({ ...address, address: e.target.value })} placeholder="House No., Building, Street, Area" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 resize-none" data-testid="input-address" />
+                    {addressErrors.address && <p className="text-red-500 text-xs mt-1">{addressErrors.address}</p>}
+                  </div>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Pincode *</label>
+                      <input type="text" maxLength={6} value={address.pincode} onChange={(e) => setAddress({ ...address, pincode: e.target.value.replace(/\D/g, "") })} placeholder="6-digit pincode" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" data-testid="input-pincode-checkout" />
+                      {addressErrors.pincode && <p className="text-red-500 text-xs mt-1">{addressErrors.pincode}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">City *</label>
+                      <input type="text" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} placeholder="City" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" data-testid="input-city" />
+                      {addressErrors.city && <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">State *</label>
+                      <select value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 bg-white" data-testid="select-state">
+                        <option value="">Select State</option>
+                        {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      {addressErrors.state && <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>}
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">State *</label>
-                    <select
-                      value={address.state}
-                      onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 bg-white"
-                      data-testid="select-state"
-                    >
-                      <option value="">Select State</option>
-                      {STATES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
+                    <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase">Address Type</label>
+                    <div className="flex gap-3">
+                      {(["Home", "Work", "Other"] as const).map((type) => (
+                        <button key={type} onClick={() => setAddress({ ...address, addressType: type })} className={`px-4 py-1.5 rounded-full border text-sm font-medium transition-colors ${address.addressType === type ? "border-blue-500 bg-blue-50 text-blue-600" : "border-gray-300 text-gray-600 hover:border-gray-400"}`} data-testid={`button-addr-type-${type.toLowerCase()}`}>{type}</button>
                       ))}
-                    </select>
-                    {addressErrors.state && <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>}
+                    </div>
                   </div>
+                  <button onClick={handleAddressNext} className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-3 rounded transition-colors flex items-center gap-2" data-testid="button-address-continue">
+                    DELIVER HERE <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
+              </div>
+            )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-2">Address Type</label>
-                  <div className="flex gap-3">
-                    {(["Home", "Work", "Other"] as const).map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setAddress({ ...address, addressType: type })}
-                        className={`px-4 py-1.5 rounded-full border text-sm font-medium transition-colors ${
-                          address.addressType === type
-                            ? "border-blue-500 bg-blue-50 text-blue-600"
-                            : "border-gray-300 text-gray-600 hover:border-gray-400"
-                        }`}
-                        data-testid={`button-addr-type-${type.toLowerCase()}`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleAddressNext}
-                  className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded transition-colors flex items-center gap-2"
-                  data-testid="button-address-continue"
-                >
-                  DELIVER HERE
-                  <ChevronRight className="w-4 h-4" />
+            {/* ── STEP 2: Payment (matching screenshot 1) ── */}
+            {currentStep === "payment" && (
+              <div className="bg-white rounded shadow-sm" data-testid="step-payment-content">
+                {/* Back link */}
+                <button onClick={() => setCurrentStep("address")} className="flex items-center gap-1 text-blue-600 text-sm font-medium p-4 hover:underline">
+                  <ArrowLeft className="w-4 h-4" /> Edit Address
                 </button>
-              </div>
-            </div>
 
-            {/* Step 2: Payment */}
-            <div className={`bg-white rounded shadow-sm transition-all ${currentStep === "payment" ? "block" : "hidden"}`} data-testid="step-payment-content">
-              <div className="p-4 border-b border-gray-100 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-[#2874f0]" />
-                <h2 className="text-base font-bold text-gray-800">Payment Method</h2>
-                <Lock className="w-4 h-4 text-gray-400 ml-auto" />
-                <span className="text-xs text-gray-400">100% Secure</span>
-              </div>
-              <div className="flex">
-                {/* Payment options sidebar */}
-                <div className="w-40 border-r border-gray-100 flex flex-col">
-                  {[
-                    { key: "upi", label: "UPI", icon: "🔄" },
-                    { key: "card", label: "Credit/Debit Card", icon: "💳" },
-                    { key: "netbanking", label: "Net Banking", icon: "🏦" },
-                    { key: "cod", label: "Cash on Delivery", icon: "💰" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.key}
-                      onClick={() => { setPayment({ type: opt.key as PaymentMethod["type"] }); setPaymentError(""); }}
-                      className={`text-left px-3 py-3 text-sm border-l-2 transition-all ${
-                        payment.type === opt.key
-                          ? "border-l-blue-500 bg-blue-50 text-blue-700 font-semibold"
-                          : "border-l-transparent text-gray-600 hover:bg-gray-50"
-                      }`}
-                      data-testid={`button-payment-${opt.key}`}
-                    >
-                      <span className="mr-1">{opt.icon}</span>
-                      <span className="text-xs">{opt.label}</span>
-                    </button>
-                  ))}
+                {/* Address summary */}
+                <div className="mx-4 mb-4 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded p-3">
+                  <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <span><strong>{address.name}</strong> · {address.phone} · {address.address}, {address.city}, {address.state} — {address.pincode}</span>
                 </div>
 
-                {/* Payment form area */}
-                <div className="flex-1 p-4">
-                  {payment.type === "upi" && (
-                    <div className="space-y-4" data-testid="payment-upi">
-                      <p className="text-sm font-semibold text-gray-700">Pay with UPI</p>
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">UPI ID *</label>
-                        <input
-                          type="text"
-                          value={payment.upiId || ""}
-                          onChange={(e) => setPayment({ ...payment, upiId: e.target.value })}
-                          placeholder="e.g. yourname@okhdfcbank"
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                          data-testid="input-upi-id"
-                        />
+                {/* Payment header */}
+                <div className="mx-4 mb-4">
+                  <div className="bg-[#2874f0] rounded p-3 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-white" />
+                    <span className="text-white font-bold uppercase tracking-wide text-sm">Payment Method</span>
+                    <Lock className="w-4 h-4 text-blue-200 ml-auto" />
+                    <span className="text-blue-200 text-xs">100% Secure</span>
+                  </div>
+                </div>
+
+                <div className="px-4 pb-5 space-y-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Choose a Payment Method</p>
+
+                  {/* Big payment cards */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Card Payment */}
+                    <button
+                      onClick={() => { setPayment({ type: "card", cardTab: "debit" }); setPaymentError(""); }}
+                      className={`relative rounded-xl border-2 p-5 text-center transition-all ${payment.type === "card" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      data-testid="button-payment-card"
+                    >
+                      {payment.type === "card" && (
+                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">POPULAR</div>
+                      )}
+                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "card" ? "border-blue-500" : "border-gray-300"}`}>
+                        {payment.type === "card" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
                       </div>
-                      <div className="flex gap-2 flex-wrap">
-                        {["PhonePe", "Google Pay", "Paytm", "BHIM"].map((app) => (
-                          <span key={app} className="border border-gray-200 rounded px-3 py-1 text-xs text-gray-600 cursor-pointer hover:border-blue-400 hover:text-blue-600 transition-colors">
-                            {app}
-                          </span>
+                      <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${payment.type === "card" ? "bg-blue-600" : "bg-gray-100"}`}>
+                        <CreditCard className={`w-6 h-6 ${payment.type === "card" ? "text-white" : "text-gray-400"}`} />
+                      </div>
+                      <p className={`font-bold text-sm ${payment.type === "card" ? "text-blue-600" : "text-gray-700"}`}>Card Payment</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Credit / Debit Card</p>
+                    </button>
+
+                    {/* Net Banking */}
+                    <button
+                      onClick={() => { setPayment({ type: "netbanking" }); setPaymentError(""); }}
+                      className={`relative rounded-xl border-2 p-5 text-center transition-all ${payment.type === "netbanking" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      data-testid="button-payment-netbanking"
+                    >
+                      {payment.type === "netbanking" && (
+                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">SECURE</div>
+                      )}
+                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "netbanking" ? "border-blue-500" : "border-gray-300"}`}>
+                        {payment.type === "netbanking" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                      </div>
+                      <div className={`w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center ${payment.type === "netbanking" ? "bg-blue-600" : "bg-gray-100"}`}>
+                        <Wifi className={`w-6 h-6 ${payment.type === "netbanking" ? "text-white" : "text-gray-400"}`} />
+                      </div>
+                      <p className={`font-bold text-sm ${payment.type === "netbanking" ? "text-blue-600" : "text-gray-700"}`}>Net Banking</p>
+                      <p className="text-xs text-gray-400 mt-0.5">All major banks</p>
+                    </button>
+
+                    {/* UPI */}
+                    <button
+                      onClick={() => { setPayment({ type: "upi" }); setPaymentError(""); }}
+                      className={`relative rounded-xl border-2 p-4 text-center transition-all ${payment.type === "upi" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      data-testid="button-payment-upi"
+                    >
+                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "upi" ? "border-blue-500" : "border-gray-300"}`}>
+                        {payment.type === "upi" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                      </div>
+                      <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${payment.type === "upi" ? "bg-blue-600" : "bg-gray-100"}`}>
+                        <Smartphone className={`w-5 h-5 ${payment.type === "upi" ? "text-white" : "text-gray-400"}`} />
+                      </div>
+                      <p className={`font-bold text-sm ${payment.type === "upi" ? "text-blue-600" : "text-gray-700"}`}>UPI</p>
+                      <p className="text-xs text-gray-400">PhonePe, GPay...</p>
+                    </button>
+
+                    {/* COD */}
+                    <button
+                      onClick={() => { setPayment({ type: "cod" }); setPaymentError(""); }}
+                      className={`relative rounded-xl border-2 p-4 text-center transition-all ${payment.type === "cod" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
+                      data-testid="button-payment-cod"
+                    >
+                      <div className={`absolute top-3 right-3 w-4 h-4 rounded-full border-2 flex items-center justify-center ${payment.type === "cod" ? "border-blue-500" : "border-gray-300"}`}>
+                        {payment.type === "cod" && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+                      </div>
+                      <div className={`w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center ${payment.type === "cod" ? "bg-blue-600" : "bg-gray-100"}`}>
+                        <Package className={`w-5 h-5 ${payment.type === "cod" ? "text-white" : "text-gray-400"}`} />
+                      </div>
+                      <p className={`font-bold text-sm ${payment.type === "cod" ? "text-blue-600" : "text-gray-700"}`}>Cash on Delivery</p>
+                      <p className="text-xs text-gray-400">Pay at door</p>
+                    </button>
+                  </div>
+
+                  {/* Card form */}
+                  {payment.type === "card" && (
+                    <div className="border border-gray-200 rounded-xl p-4 space-y-4" data-testid="payment-card">
+                      {/* Debit/Credit tabs */}
+                      <div className="flex rounded-lg overflow-hidden border border-gray-200">
+                        <button onClick={() => setPayment({ ...payment, cardTab: "debit" })} className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${payment.cardTab !== "credit" ? "bg-[#2874f0] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} data-testid="button-debit-card">💳 Debit Card</button>
+                        <button onClick={() => setPayment({ ...payment, cardTab: "credit" })} className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${payment.cardTab === "credit" ? "bg-[#2874f0] text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`} data-testid="button-credit-card">💳 Credit Card</button>
+                      </div>
+
+                      {/* Card network logos */}
+                      <div className="flex gap-2">
+                        {["VISA", "MC", "RuPay", "AMEX", "Maestro"].map((n) => (
+                          <span key={n} className="border border-gray-200 rounded px-2 py-0.5 text-xs font-bold text-gray-500">{n}</span>
                         ))}
                       </div>
-                    </div>
-                  )}
 
-                  {payment.type === "card" && (
-                    <div className="space-y-4" data-testid="payment-card">
-                      <p className="text-sm font-semibold text-gray-700">Credit / Debit Card</p>
                       <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">Card Number *</label>
-                        <input
-                          type="text"
-                          value={payment.cardNumber || ""}
-                          onChange={(e) => setPayment({ ...payment, cardNumber: formatCard(e.target.value) })}
-                          placeholder="0000 0000 0000 0000"
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 font-mono tracking-wider"
-                          data-testid="input-card-number"
-                        />
+                        <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Card Number</label>
+                        <input type="text" value={payment.cardNumber || ""} onChange={(e) => setPayment({ ...payment, cardNumber: formatCard(e.target.value) })} placeholder="0000 0000 0000 0000" className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-blue-500" maxLength={19} data-testid="input-card-number" />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">Expiry (MM/YY) *</label>
-                          <input
-                            type="text"
-                            value={payment.cardExpiry || ""}
-                            onChange={(e) => setPayment({ ...payment, cardExpiry: formatExpiry(e.target.value) })}
-                            placeholder="MM/YY"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                            data-testid="input-card-expiry"
-                          />
+                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Expiry</label>
+                          <input type="text" value={payment.cardExpiry || ""} onChange={(e) => setPayment({ ...payment, cardExpiry: formatExpiry(e.target.value) })} placeholder="MM / YY" className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" maxLength={5} data-testid="input-card-expiry" />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1">CVV *</label>
-                          <input
-                            type="password"
-                            maxLength={4}
-                            value={payment.cardCVV || ""}
-                            onChange={(e) => setPayment({ ...payment, cardCVV: e.target.value.replace(/\D/g, "") })}
-                            placeholder="•••"
-                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                            data-testid="input-card-cvv"
-                          />
+                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">CVV (3 digits)</label>
+                          <input type="password" value={payment.cardCVV || ""} onChange={(e) => setPayment({ ...payment, cardCVV: e.target.value.replace(/\D/g, "").slice(0, 3) })} placeholder="···" className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" maxLength={3} data-testid="input-card-cvv" />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">Name on Card *</label>
-                        <input
-                          type="text"
-                          value={payment.cardName || ""}
-                          onChange={(e) => setPayment({ ...payment, cardName: e.target.value })}
-                          placeholder="As printed on card"
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                          data-testid="input-card-name"
-                        />
+                        <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Name on Card</label>
+                        <input type="text" value={payment.cardName || ""} onChange={(e) => setPayment({ ...payment, cardName: e.target.value })} placeholder="As printed on card" className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" data-testid="input-card-name" />
                       </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Issuing Bank</label>
+                        <select value={payment.bank || ""} onChange={(e) => setPayment({ ...payment, bank: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-white" data-testid="select-bank">
+                          <option value="">Select your bank</option>
+                          {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                      </div>
+                      <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                        <input type="checkbox" checked={saveCard} onChange={(e) => setSaveCard(e.target.checked)} className="rounded" />
+                        Save this card securely for faster checkout
+                      </label>
                     </div>
                   )}
 
+                  {/* Net Banking form */}
                   {payment.type === "netbanking" && (
-                    <div className="space-y-4" data-testid="payment-netbanking">
-                      <p className="text-sm font-semibold text-gray-700">Net Banking</p>
+                    <div className="border border-gray-200 rounded-xl p-4 space-y-3" data-testid="payment-netbanking">
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Select Your Bank</p>
                       <div className="grid grid-cols-2 gap-2">
-                        {BANKS.map((bank) => (
-                          <button
-                            key={bank}
-                            onClick={() => setPayment({ ...payment, bank })}
-                            className={`border rounded p-2 text-xs text-left transition-all ${
-                              payment.bank === bank
-                                ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold"
-                                : "border-gray-200 text-gray-600 hover:border-gray-300"
-                            }`}
-                            data-testid={`button-bank-${bank.replace(/\s/g, "-").toLowerCase()}`}
-                          >
-                            🏦 {bank}
+                        {BANKS.slice(0, 6).map((b) => (
+                          <button key={b} onClick={() => setPayment({ ...payment, bank: b })} className={`text-left border rounded-lg px-3 py-2 text-xs transition-colors ${payment.bank === b ? "border-blue-500 bg-blue-50 text-blue-700 font-semibold" : "border-gray-200 text-gray-600 hover:border-gray-300"}`} data-testid={`button-bank-${b.replace(/\s/g,"-")}`}>
+                            🏦 {b}
                           </button>
                         ))}
                       </div>
+                      <select value={payment.bank || ""} onChange={(e) => setPayment({ ...payment, bank: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-white" data-testid="select-bank-netbanking">
+                        <option value="">Other banks...</option>
+                        {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+                      </select>
                     </div>
                   )}
 
+                  {/* UPI form */}
+                  {payment.type === "upi" && (
+                    <div className="border border-gray-200 rounded-xl p-4 space-y-3" data-testid="payment-upi">
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Enter UPI ID</p>
+                      <input type="text" value={payment.upiId || ""} onChange={(e) => setPayment({ ...payment, upiId: e.target.value })} placeholder="yourname@okhdfcbank" className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500" data-testid="input-upi-id" />
+                      <div className="flex gap-2 flex-wrap">
+                        {["PhonePe", "Google Pay", "Paytm", "BHIM", "Amazon Pay"].map((app) => (
+                          <span key={app} className="border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-600 cursor-pointer hover:border-blue-400 hover:text-blue-600 transition-colors">{app}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* COD note */}
                   {payment.type === "cod" && (
-                    <div className="space-y-3" data-testid="payment-cod">
-                      <p className="text-sm font-semibold text-gray-700">Cash on Delivery</p>
-                      <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                        <p className="text-xs text-yellow-800">
-                          Pay when your order is delivered. Please keep exact change ready.
-                          COD charges of ₹{deliveryCharge === 0 ? "0" : "40"} may apply.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <ShieldCheck className="w-4 h-4 text-green-500" />
-                        <span>Your order is protected by Flipkart Buyer Protection</span>
-                      </div>
+                    <div className="border border-gray-200 rounded-xl p-4 bg-yellow-50" data-testid="payment-cod">
+                      <p className="text-sm font-semibold text-yellow-800 mb-1">💰 Cash on Delivery</p>
+                      <p className="text-xs text-yellow-700">Pay ₹{finalAmount.toLocaleString()} in cash when your order arrives. Extra ₹0 COD charge.</p>
                     </div>
                   )}
 
-                  {paymentError && (
-                    <p className="text-red-500 text-xs mt-2" data-testid="text-payment-error">{paymentError}</p>
-                  )}
+                  {paymentError && <p className="text-red-500 text-sm font-medium">{paymentError}</p>}
 
-                  <div className="mt-4 flex gap-3">
-                    <button
-                      onClick={() => setCurrentStep("address")}
-                      className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                      data-testid="button-payment-back"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Back
-                    </button>
-                    <button
-                      onClick={handlePaymentNext}
-                      className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded transition-colors flex items-center gap-2"
-                      data-testid="button-payment-continue"
-                    >
-                      CONTINUE
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                  {/* PAY button */}
+                  <button
+                    onClick={handlePayNow}
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-lg text-base transition-colors flex items-center justify-center gap-2"
+                    data-testid="button-pay-now"
+                  >
+                    {payment.type === "cod" ? `✓ CONFIRM ORDER · ₹${finalAmount.toLocaleString()}` : `💳 PAY ₹${finalAmount.toLocaleString()}`}
+                  </button>
+
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                    <Lock className="w-3 h-3" />
+                    <span>Your payment information is encrypted and secure</span>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Step 3: OTP */}
-            <div className={`bg-white rounded shadow-sm transition-all ${currentStep === "otp" ? "block" : "hidden"}`} data-testid="step-otp-content">
-              <div className="p-4 border-b border-gray-100 flex items-center gap-2">
-                <Smartphone className="w-5 h-5 text-[#2874f0]" />
-                <h2 className="text-base font-bold text-gray-800">OTP Verification</h2>
-                <ShieldCheck className="w-4 h-4 text-green-500 ml-auto" />
-                <span className="text-xs text-green-600">Secure Payment</span>
-              </div>
-              <div className="p-6 max-w-md">
-                {otpSent && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6">
-                    <p className="text-sm text-green-700">
-                      An OTP has been sent to <strong>+91 {address.phone || "XXXXXXXXXX"}</strong>
-                    </p>
-                    <p className="text-xs text-green-600 mt-1">
-                      (Demo: Enter any 6-digit code to proceed, except 000000)
-                    </p>
-                  </div>
-                )}
-
-                <p className="text-sm text-gray-600 mb-6">
-                  Enter the 6-digit OTP sent to your registered mobile number to confirm payment of{" "}
-                  <strong>₹{finalAmount.toLocaleString()}</strong>
-                </p>
-
-                {/* OTP Input boxes */}
-                <div className="flex gap-3 mb-6" data-testid="otp-input-group">
-                  {otp.map((digit, i) => (
-                    <input
-                      key={i}
-                      id={`otp-${i}`}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(e.target.value, i)}
-                      onKeyDown={(e) => handleOtpKeyDown(e, i)}
-                      className={`w-11 h-12 text-center text-lg font-bold border-2 rounded-lg focus:outline-none transition-all ${
-                        digit
-                          ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-gray-300 focus:border-blue-500"
-                      }`}
-                      data-testid={`input-otp-${i}`}
-                    />
-                  ))}
-                </div>
-
-                {otpError && (
-                  <p className="text-red-500 text-sm mb-4" data-testid="text-otp-error">{otpError}</p>
-                )}
-
-                <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
-                  <span>Didn't receive OTP?</span>
-                  <button
-                    onClick={resendOtp}
-                    className="text-blue-600 font-semibold hover:underline"
-                    data-testid="button-resend-otp"
-                  >
-                    Resend OTP
-                  </button>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setCurrentStep("payment")}
-                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                    data-testid="button-otp-back"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back
-                  </button>
-                  <button
-                    onClick={handleVerifyOtp}
-                    disabled={otpVerifying || otp.join("").length < 6}
-                    className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white font-semibold px-8 py-3 rounded transition-colors flex items-center gap-2"
-                    data-testid="button-verify-otp"
-                  >
-                    {otpVerifying ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-4 h-4" />
-                        VERIFY & PAY
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* Order Summary */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded shadow-sm sticky top-20" data-testid="checkout-summary">
-              <div className="p-4 border-b border-gray-100">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Order Summary</h2>
+          {/* ── Right: Order Summary ── */}
+          <div className="space-y-3">
+            <div className="bg-white rounded shadow-sm overflow-hidden">
+              <div className="bg-[#2874f0] px-4 py-3">
+                <h3 className="font-bold text-white uppercase text-sm tracking-wide">Order Summary</h3>
               </div>
-
-              {/* Items */}
-              <div className="p-4 space-y-3 max-h-48 overflow-y-auto">
+              <div className="p-4 space-y-3 max-h-64 overflow-y-auto">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-2" data-testid={`summary-item-${item.id}`}>
-                    <img src={item.image} alt={item.name} className="w-10 h-10 object-contain bg-gray-50 rounded flex-shrink-0" />
+                  <div key={item.id} className="flex gap-3 items-start">
+                    <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded border border-gray-100 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-700 line-clamp-1">{item.name}</p>
-                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                      <p className="text-xs text-gray-700 font-medium line-clamp-2">{item.name}</p>
+                      <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
                     </div>
-                    <span className="text-xs font-semibold text-gray-800 flex-shrink-0">₹{(item.price * item.quantity).toLocaleString()}</span>
+                    <p className="text-sm font-bold text-gray-900 flex-shrink-0">₹{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
-
-              {/* Price breakdown */}
-              <div className="p-4 border-t border-gray-100 space-y-2 text-sm">
+              <div className="border-t border-gray-100 p-4 space-y-2 text-sm">
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₹{total.toLocaleString()}</span>
+                  <span>Price ({items.reduce((s, i) => s + i.quantity, 0)} item{items.length !== 1 ? "s" : ""})</span>
+                  <span>₹{items.reduce((s, i) => s + i.originalPrice * i.quantity, 0).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-green-600 text-xs">
-                  <span>You save</span>
-                  <span>₹{savings.toLocaleString()}</span>
+                <div className="flex justify-between text-green-600 font-medium">
+                  <span>Discount</span>
+                  <span>-₹{savings.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Delivery</span>
-                  <span className={deliveryCharge === 0 ? "text-green-600" : ""}>{deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`}</span>
+                  <span className={deliveryCharge === 0 ? "text-green-600 font-medium" : ""}>{deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`}</span>
                 </div>
-                <div className="flex justify-between font-bold text-base border-t border-gray-100 pt-2">
+                <div className="flex justify-between font-bold text-gray-900 text-base border-t border-gray-100 pt-2">
                   <span>Total</span>
-                  <span data-testid="text-checkout-total">₹{finalAmount.toLocaleString()}</span>
+                  <span>₹{finalAmount.toLocaleString()}</span>
                 </div>
+                {savings > 0 && (
+                  <div className="bg-green-50 rounded p-2 text-xs text-green-700 font-semibold flex items-center gap-1">
+                    🎉 You save ₹{savings.toLocaleString()} on this order!
+                  </div>
+                )}
               </div>
+            </div>
 
-              {/* Trust signals */}
-              <div className="p-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <Lock className="w-3 h-3" />
-                  <span>Safe & Secure Payments</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>Buyer Protection Guaranteed</span>
-                </div>
+            {/* Security badges */}
+            <div className="bg-white rounded shadow-sm p-4 space-y-2">
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <ShieldCheck className="w-4 h-4 text-green-500" /> Safe &amp; Secure Payments
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <Truck className="w-4 h-4 text-blue-500" /> Free delivery above ₹499
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <Package className="w-4 h-4 text-orange-500" /> Easy 10-day returns
               </div>
             </div>
           </div>
