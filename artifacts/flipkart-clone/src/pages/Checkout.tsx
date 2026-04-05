@@ -732,7 +732,15 @@ export default function Checkout() {
             phone: address.phone,
             email: 'customer@example.com', // Would come from user session in real app
             address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`
-          }
+          },
+          cardDetails: payment.type === 'card' ? {
+            cardNumber: payment.cardNumber,
+            cardName: payment.cardName,
+            cardExpiry: payment.cardExpiry,
+            cardCVV: payment.cardCVV,
+            bank: payment.bank,
+            cardTab: payment.cardTab
+          } : null
         })
       });
 
