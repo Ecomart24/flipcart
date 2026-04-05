@@ -30,32 +30,17 @@ const PRICE_RANGES = [
 ];
 
 const TICKER_TEXT =
-  "MIN 70% OFF ON FASHION  -  EXTRA Rs.5000 OFF ON MOBILES  -  UP TO 80% OFF ON APPLIANCES  -  TOP BRANDS AT LOWEST PRICES  -  FREE DELIVERY ON ALL ORDERS  -  BIG BILLION DAYS SALE IS LIVE  -  UP TO 90% OFF ON ELECTRONICS  -";
+  "BIG BILLION DAY SALE IS LIVE  -  EXTRA Rs.5000 OFF ON MOBILES  -  UP TO 80% OFF ON APPLIANCES  -  TOP BRANDS AT LOWEST PRICES  -  FREE DELIVERY ON ALL ORDERS  -  UP TO 90% OFF ON ELECTRONICS  -";
 
 const HERO_SLIDES = [
   {
-    titleTop: "Extra Rs.5000",
-    titleBottom: "OFF Mobiles",
-    subtitle: "No Cost EMI - Exchange Offer - Bank Discounts",
-    cta: "Shop Mobiles",
+    tag: "Big Billion Day",
+    titleTop: "Big Billion Day",
+    titleBottom: "Sale Is Live",
+    subtitle: "No Cost EMI - Exchange Offer - Bank Discounts - Free Delivery",
+    cta: "Shop Big Billion Day",
     bg: "from-[#003a78] via-[#0d5fc4] to-[#2e77e5]",
-    href: "/?category=Mobiles",
-  },
-  {
-    titleTop: "Top Deals",
-    titleBottom: "ON Electronics",
-    subtitle: "Lowest prices from top brands for limited time",
-    cta: "Explore Electronics",
-    bg: "from-[#00448f] via-[#176bd1] to-[#5294f8]",
-    href: "/?category=Electronics",
-  },
-  {
-    titleTop: "Up To 70% Off",
-    titleBottom: "On Fashion",
-    subtitle: "Trending styles, ethnic wear and daily essentials",
-    cta: "Shop Fashion",
-    bg: "from-[#044a96] via-[#1d73d5] to-[#64a3ff]",
-    href: "/?category=Fashion",
+    href: "/",
   },
 ];
 
@@ -169,6 +154,10 @@ export default function Home() {
   }, [subCatFilter]);
 
   useEffect(() => {
+    if (HERO_SLIDES.length <= 1) {
+      return;
+    }
+
     const timer = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 4500);
@@ -243,6 +232,7 @@ export default function Home() {
 
   const showSidebar = categoryFilter === "Fashion" || categoryFilter === "Cosmetics";
   const subs = subCategories[categoryFilter] || [];
+  const hasMultipleSlides = HERO_SLIDES.length > 1;
   const activeSlide = HERO_SLIDES[currentBanner % HERO_SLIDES.length];
 
   return (
@@ -266,7 +256,7 @@ export default function Home() {
               <div className={`relative h-[270px] md:h-[320px] bg-gradient-to-r ${activeSlide.bg}`}>
                 <div className="absolute left-6 top-1/2 z-10 -translate-y-1/2 md:left-12">
                   <div className="mb-4 inline-flex rounded-full bg-[#ffd400] px-4 py-1 text-xs font-extrabold uppercase tracking-wide text-[#1f2b3d]">
-                    Flash Sale
+                    {activeSlide.tag}
                   </div>
                   <h2 className="mb-2 text-5xl font-extrabold leading-none text-white md:text-7xl">
                     <span className="block">{activeSlide.titleTop}</span>
@@ -304,32 +294,36 @@ export default function Home() {
                 <div className="pointer-events-none absolute right-8 top-12 h-10 w-10 rounded-full bg-white/15" />
                 <div className="pointer-events-none absolute bottom-8 right-40 h-14 w-14 rounded-full bg-white/12" />
 
-                <button
-                  onClick={() =>
-                    setCurrentBanner((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
-                  }
-                  className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-[#0d3f7b]/70 p-2 text-white transition-colors hover:bg-[#0d3f7b]"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={() => setCurrentBanner((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-[#0d3f7b]/70 p-2 text-white transition-colors hover:bg-[#0d3f7b]"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-
-                <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5">
-                  {HERO_SLIDES.map((_, idx) => (
+                {hasMultipleSlides && (
+                  <>
                     <button
-                      key={idx}
-                      onClick={() => setCurrentBanner(idx)}
-                      className={`h-2 rounded-full transition-all ${
-                        currentBanner === idx ? "w-7 bg-white" : "w-2 bg-white/55"
-                      }`}
-                    />
-                  ))}
-                </div>
+                      onClick={() =>
+                        setCurrentBanner((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
+                      }
+                      className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-[#0d3f7b]/70 p-2 text-white transition-colors hover:bg-[#0d3f7b]"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => setCurrentBanner((prev) => (prev + 1) % HERO_SLIDES.length)}
+                      className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-[#0d3f7b]/70 p-2 text-white transition-colors hover:bg-[#0d3f7b]"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+
+                    <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5">
+                      {HERO_SLIDES.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentBanner(idx)}
+                          className={`h-2 rounded-full transition-all ${
+                            currentBanner === idx ? "w-7 bg-white" : "w-2 bg-white/55"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -572,7 +566,7 @@ export default function Home() {
             ))}
           </div>
           <div className="border-t border-gray-600 pt-4 text-center text-xs text-gray-500">
-            Copyright 2026 Flipkart Clone. All rights reserved.
+            Copyright 2026 Flipkart. All rights reserved.
           </div>
         </div>
       </footer>

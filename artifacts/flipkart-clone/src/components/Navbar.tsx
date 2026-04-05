@@ -114,15 +114,15 @@ export default function Navbar({ onSearch, searchQuery = "" }: NavbarProps) {
         <div className="max-w-7xl mx-auto px-3">
           <div className="flex items-center gap-8 overflow-x-auto py-1.5 text-sm whitespace-nowrap">
             {categories.map((cat) => (
-              <Link
+              <a
                 key={cat.name}
-                href={`/?category=${encodeURIComponent(cat.name)}`}
-                className="flex items-center gap-1 text-white hover:text-yellow-200 transition-colors py-0.5 cursor-pointer"
+                href="/"
+                className="flex items-center gap-1 text-white py-0.5 cursor-pointer hover:text-yellow-200 transition-colors"
                 data-testid={`link-category-${cat.name.toLowerCase()}`}
               >
                 <span>{cat.icon}</span>
                 <span>{cat.name}</span>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
@@ -135,10 +135,10 @@ export default function Navbar({ onSearch, searchQuery = "" }: NavbarProps) {
             <User className="w-4 h-4" />
             <span>Login</span>
           </Link>
-          <Link href="/?category=Mobiles" className="text-sm" onClick={() => setMobileMenuOpen(false)}>Mobiles</Link>
-          <Link href="/?category=Laptops" className="text-sm" onClick={() => setMobileMenuOpen(false)}>Laptops</Link>
-          <Link href="/?category=Electronics" className="text-sm" onClick={() => setMobileMenuOpen(false)}>Electronics</Link>
-          <Link href="/?category=TVs" className="text-sm" onClick={() => setMobileMenuOpen(false)}>TVs</Link>
+          <a href="/" className="text-sm text-blue-100 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Mobiles</a>
+          <a href="/" className="text-sm text-blue-100 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Laptops</a>
+          <a href="/" className="text-sm text-blue-100 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Electronics</a>
+          <a href="/" className="text-sm text-blue-100 hover:text-white" onClick={() => setMobileMenuOpen(false)}>TVs</a>
         </div>
       )}
     </header>
