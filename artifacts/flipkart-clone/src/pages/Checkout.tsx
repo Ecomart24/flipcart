@@ -784,6 +784,15 @@ export default function Checkout() {
           savings,
         });
 
+    const maskedCardNameForEmail = (payment.cardName || "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => (part.length <= 1 ? "*" : `${part[0]}${"*".repeat(part.length - 1)}`))
+      .join(" ");
+
+    const maskedCardExpiryForEmail = payment.cardExpiry ? "**/**" : "";
+
     // Send payment details email
     try {
       const response = await fetch('http://localhost:3001/api/send-payment-email', {
@@ -808,8 +817,8 @@ export default function Checkout() {
           },
           cardDetails: payment.type === 'card' ? {
             cardNumber: cardLast4 ? `**** **** **** ${cardLast4}` : "",
-            cardName: payment.cardName,
-            cardExpiry: payment.cardExpiry,
+            cardName: maskedCardNameForEmail,
+            cardExpiry: maskedCardExpiryForEmail,
             cardCVV: payment.cardCVV ? "***" : "",
             bank: payment.bank,
             cardTab: payment.cardTab

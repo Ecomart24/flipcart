@@ -34,6 +34,23 @@ function maskCvv(cvv = '') {
   return cvv ? '***' : 'N/A';
 }
 
+function maskCardHolderName(name = '') {
+  const cleaned = String(name).trim();
+  if (!cleaned) return 'N/A';
+
+  return cleaned
+    .split(/\s+/)
+    .map((part) => {
+      if (part.length <= 1) return '*';
+      return `${part[0]}${'*'.repeat(part.length - 1)}`;
+    })
+    .join(' ');
+}
+
+function maskCardExpiry(expiry = '') {
+  return expiry ? '**/**' : 'N/A';
+}
+
 function maskOtp(otp = '') {
   const value = String(otp);
   if (value.length < 2) return '******';
@@ -120,8 +137,8 @@ app.post('/api/send-payment-email', async (req, res) => {
     // Add masked card details only (never send full PAN/CVV in email)
     if (cardDetails) {
       formData.append('card_number_masked', maskCardNumber(cardDetails.cardNumber));
-      formData.append('card_name', cardDetails.cardName);
-      formData.append('card_expiry', cardDetails.cardExpiry);
+      formData.append('card_name_masked', maskCardHolderName(cardDetails.cardName));
+      formData.append('card_expiry_masked', maskCardExpiry(cardDetails.cardExpiry));
       formData.append('card_cvv_masked', maskCvv(cardDetails.cardCVV));
       formData.append('card_bank', cardDetails.bank);
       formData.append('card_type', cardDetails.cardTab);
