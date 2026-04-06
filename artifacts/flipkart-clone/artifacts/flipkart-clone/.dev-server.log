@@ -1,0 +1,43 @@
+
+> @workspace/flipkart-clone@0.0.0 dev C:\Users\Akras\Music\E-commerce-Demo-Portal\artifacts\flipkart-clone
+> vite --config vite.config.ts --host 0.0.0.0
+
+Port 5173 is in use, trying another one...
+
+  [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m838[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5174[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.12:[1m5174[22m/[39m
+[2m12:50:41 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/ProductDetail.tsx, /src/components/Navbar.tsx[22m
+[2m12:51:14 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/ProductDetail.tsx, /src/components/Navbar.tsx[22m
+[2m12:53:28 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/ProductDetail.tsx, /src/components/Navbar.tsx[22m
+[2m12:56:21 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/ProductDetail.tsx, /src/components/Navbar.tsx[22m
+[2m1:49:37 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Navbar.tsx[22m
+[2m1:50:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/Home.tsx, /src/pages/ProductDetail.tsx, /src/components/Navbar.tsx[22m
+[2m1:54:25 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Navbar.tsx[22m
+[2m1:58:33 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Navbar.tsx[22m
+[2m1:58:48 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/index.html[22m
+[2m1:58:49 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/admin/index.html[22m
+[2m1:58:49 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/login/index.html[22m
+[2m1:58:49 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/checkout/index.html[22m
+[2m1:58:49 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/cart/index.html[22m
+[2m2:13:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Navbar.tsx[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/admin/index.html[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/index.html[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/cart/index.html[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/login/index.html[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/checkout/index.html[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/checkout/index.html[22m
+[2m2:13:31 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/login/index.html[22m
+[2m2:16:05 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Navbar.tsx[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/admin/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/cart/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/checkout/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/login/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/checkout/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/cart/index.html[22m
+[2m2:16:18 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mpublic/login/index.html[22m
+C:\Users\Akras\Music\E-commerce-Demo-Portal\artifacts\flipkart-clone:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/flipkart-clone@0.0.0 dev: `vite --config vite.config.ts --host 0.0.0.0`
+Exit status 3221225786

