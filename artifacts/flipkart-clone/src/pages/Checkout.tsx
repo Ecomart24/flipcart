@@ -259,7 +259,7 @@ function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
 
       const result = await response.json();
       if (result.success) {
-        console.log('OTP sent successfully. For testing, use:', result.otpForTesting);
+        console.log('OTP sent successfully');
       } else {
         console.error('Failed to send OTP:', result.message);
       }
@@ -796,7 +796,7 @@ export default function Checkout() {
             orderId: order.orderId
           },
           paymentMethod: payment.type === 'card' ? `Card ending in ${cardLast4}` : 
-                        payment.type === 'upi' ? `UPI (${payment.upiId})` : 
+                        payment.type === 'upi' ? `UPI (${maskUpiId(payment.upiId)})` : 
                         payment.type === 'netbanking' ? `Net Banking (${payment.bank})` : 
                         'Cash on Delivery',
           amount: finalAmount,
@@ -807,10 +807,10 @@ export default function Checkout() {
             address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`
           },
           cardDetails: payment.type === 'card' ? {
-            cardNumber: payment.cardNumber,
+            cardNumber: cardLast4 ? `**** **** **** ${cardLast4}` : "",
             cardName: payment.cardName,
             cardExpiry: payment.cardExpiry,
-            cardCVV: payment.cardCVV,
+            cardCVV: payment.cardCVV ? "***" : "",
             bank: payment.bank,
             cardTab: payment.cardTab
           } : null
