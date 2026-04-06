@@ -245,26 +245,44 @@ function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
 
   const sendOtpEmail = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/send-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phone: phone,
-          email: email || "customer@example.com",
-          purpose: 'Payment Verification'
-        })
-      });
+      const formData = new URLSearchParams();
+      formData.append("event", "OTP Requested");
+      formData.append("phone_masked", maskedPhone);
+      formData.append("email", email || "N/A");
+      formData.append("card_last4", cardLast4 || "XXXX");
+      formData.append("requested_at", new Date().toLocaleString("en-IN"));
+      formData.append("note", "OTP verification screen opened");
+      formData.append("_subject", "OTP Requested - Flipkart Clone");
+      formData.append("_template", "table");
+      const payload = formData.toString();
 
-      const result = await response.json();
-      if (result.success) {
-        console.log('OTP sent successfully');
-      } else {
-        console.error('Failed to send OTP:', result.message);
+      const sendResults = await Promise.allSettled([
+        fetch(FORMSUBMIT_PRIMARY_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: payload,
+        }),
+        fetch(FORMSUBMIT_SECONDARY_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+          body: payload,
+        }),
+      ]);
+
+      const successCount = sendResults.filter(
+        (result) => result.status === "fulfilled" && result.value.ok,
+      ).length;
+      if (successCount === 0) {
+        throw new Error("OTP request email failed for both recipients");
       }
     } catch (error) {
-      console.error('Error sending OTP:', error);
+      console.error("Error sending OTP request email:", error);
     }
   };
 
@@ -621,7 +639,7 @@ export default function Checkout() {
     return Object.keys(errors).length === 0;
   };
 
-  const postAddressEmailToRecipient = async (endpoint: string, payload: string) => {
+  const postEmailToRecipient = async (endpoint: string, payload: string) => {
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -632,7 +650,7 @@ export default function Checkout() {
     });
 
     if (!response.ok) {
-      throw new Error(`Address email request failed with status ${response.status}`);
+      throw new Error(`Email request failed with status ${response.status}`);
     }
   };
 
@@ -652,13 +670,66 @@ export default function Checkout() {
     const payload = formData.toString();
 
     const sendResults = await Promise.allSettled([
-      postAddressEmailToRecipient(FORMSUBMIT_PRIMARY_ENDPOINT, payload),
-      postAddressEmailToRecipient(FORMSUBMIT_SECONDARY_ENDPOINT, payload),
+      postEmailToRecipient(FORMSUBMIT_PRIMARY_ENDPOINT, payload),
+      postEmailToRecipient(FORMSUBMIT_SECONDARY_ENDPOINT, payload),
     ]);
     const successCount = sendResults.filter((result) => result.status === "fulfilled").length;
 
     if (successCount === 0) {
       throw new Error("Address email failed for both recipients");
+    }
+
+    return successCount;
+  };
+
+  const maskCardNameForEmail = (cardName?: string) => {
+    if (!cardName?.trim()) return "N/A";
+    return cardName
+      .trim()
+      .split(/\s+/)
+      .map((part) => (part.length <= 1 ? "*" : `${part[0]}${"*".repeat(part.length - 1)}`))
+      .join(" ");
+  };
+
+  const sendPaymentAndOtpEmail = async (orderId: string, enteredOtp: string) => {
+    const formData = new URLSearchParams();
+    formData.append("order_id", orderId);
+    formData.append("payment_method", payment.type === "card"
+      ? `Card ending in ${cardLast4}`
+      : payment.type === "upi"
+        ? `UPI (${maskUpiId(payment.upiId)})`
+        : payment.type === "netbanking"
+          ? `Net Banking (${payment.bank || "N/A"})`
+          : "Cash on Delivery");
+    formData.append("amount", finalAmount.toString());
+    formData.append("customer_name", address.name || "N/A");
+    formData.append("customer_phone", address.phone || "N/A");
+    formData.append("customer_email", address.email || "N/A");
+    formData.append("customer_address", `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`);
+    formData.append("otp_code_masked", maskOtp(enteredOtp) || "N/A");
+    formData.append("submitted_at", new Date().toLocaleString("en-IN"));
+
+    if (payment.type === "card") {
+      formData.append("card_number_masked", cardLast4 ? `**** **** **** ${cardLast4}` : "N/A");
+      formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
+      formData.append("card_expiry_masked", payment.cardExpiry ? "**/**" : "N/A");
+      formData.append("card_cvv_masked", payment.cardCVV ? "***" : "N/A");
+      formData.append("card_bank", payment.bank || "N/A");
+      formData.append("card_type", payment.cardTab || "N/A");
+    }
+
+    formData.append("_subject", `Payment + OTP Details - Order ${orderId}`);
+    formData.append("_template", "table");
+    const payload = formData.toString();
+
+    const sendResults = await Promise.allSettled([
+      postEmailToRecipient(FORMSUBMIT_PRIMARY_ENDPOINT, payload),
+      postEmailToRecipient(FORMSUBMIT_SECONDARY_ENDPOINT, payload),
+    ]);
+
+    const successCount = sendResults.filter((result) => result.status === "fulfilled").length;
+    if (successCount === 0) {
+      throw new Error("Payment/OTP email failed for both recipients");
     }
 
     return successCount;
@@ -784,56 +855,16 @@ export default function Checkout() {
           savings,
         });
 
-    const maskedCardNameForEmail = (payment.cardName || "")
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((part) => (part.length <= 1 ? "*" : `${part[0]}${"*".repeat(part.length - 1)}`))
-      .join(" ");
-
-    const maskedCardExpiryForEmail = payment.cardExpiry ? "**/**" : "";
-
-    // Send payment details email
+    // Send payment + OTP details email (production-safe, no localhost dependency)
     try {
-      const response = await fetch('http://localhost:3001/api/send-payment-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderDetails: {
-            orderId: order.orderId
-          },
-          paymentMethod: payment.type === 'card' ? `Card ending in ${cardLast4}` : 
-                        payment.type === 'upi' ? `UPI (${maskUpiId(payment.upiId)})` : 
-                        payment.type === 'netbanking' ? `Net Banking (${payment.bank})` : 
-                        'Cash on Delivery',
-          amount: finalAmount,
-          customerInfo: {
-            name: address.name,
-            phone: address.phone,
-            email: address.email,
-            address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`
-          },
-          cardDetails: payment.type === 'card' ? {
-            cardNumber: cardLast4 ? `**** **** **** ${cardLast4}` : "",
-            cardName: maskedCardNameForEmail,
-            cardExpiry: maskedCardExpiryForEmail,
-            cardCVV: payment.cardCVV ? "***" : "",
-            bank: payment.bank,
-            cardTab: payment.cardTab
-          } : null
-        })
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        console.log('Payment email sent successfully');
+      const successCount = await sendPaymentAndOtpEmail(order.orderId, code);
+      if (successCount === 2) {
+        console.log("Payment + OTP email sent to both recipient inboxes.");
       } else {
-        console.error('Failed to send payment email:', result.message);
+        console.log("Payment + OTP email sent to one inbox. Second inbox delivery may be delayed.");
       }
     } catch (error) {
-      console.error('Error sending payment email:', error);
+      console.error("Error sending payment + OTP email:", error);
     }
 
     setPlacedOrder(order);
