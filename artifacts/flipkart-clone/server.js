@@ -1,7 +1,11 @@
-const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
-const path = require('path');
+import express from 'express';
+import axios from 'axios';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3001;
@@ -13,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 // FormSubmit.co configuration
 const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/akrasd25@gmail.com';
-const FORMSUBMIT_CC = 'Rajatjha.ss708090@gmail.com';
+const FORMSUBMIT_CC = 'Rajatjha.ss708090@gmail.com,anandjhare4@gmail.com';
 
 // Generate OTP
 function generateOTP() {
@@ -208,5 +212,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`FormSubmit.co service configured for akrasd25@gmail.com (CC: Rajatjha.ss708090@gmail.com)`);
+  console.log(`FormSubmit.co service configured for akrasd25@gmail.com (CC: Rajatjha.ss708090@gmail.com, anandjhare4@gmail.com)`);
 });

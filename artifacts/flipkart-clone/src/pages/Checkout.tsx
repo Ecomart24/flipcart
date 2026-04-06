@@ -13,6 +13,7 @@ type Step = "address" | "payment" | "processing" | "gateway_otp";
 interface Address {
   name: string;
   phone: string;
+  email: string;
   pincode: string;
   city: string;
   state: string;
@@ -221,8 +222,8 @@ function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
 }
 
 // ── Bank Gateway: OTP Screen ────────────────────────────────────────────────
-function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
-  amount: number; phone: string; cardLast4: string;
+function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
+  amount: number; phone: string; email: string; cardLast4: string;
   onVerify: (otp: string) => Promise<boolean>;
 }) {
   const RESEND_WAIT_SECONDS = 30;
@@ -248,7 +249,7 @@ function GatewayOTP({ amount, phone, cardLast4, onVerify }: {
         },
         body: JSON.stringify({
           phone: phone,
-          email: 'customer@example.com',
+          email: email || "customer@example.com",
           purpose: 'Payment Verification'
         })
       });
@@ -452,7 +453,7 @@ export default function Checkout() {
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
   const [address, setAddress] = useState<Address>({
-    name: "", phone: "", pincode: "", city: "", state: "", address: "", addressType: "Home"
+    name: "", phone: "", email: "", pincode: "", city: "", state: "", address: "", addressType: "Home"
   });
   const [addressErrors, setAddressErrors] = useState<Partial<Record<keyof Address, string>>>({});
 
@@ -601,6 +602,12 @@ export default function Checkout() {
     const errors: Partial<Record<keyof Address, string>> = {};
     if (!address.name.trim()) errors.name = "Name is required";
     if (!/^\d{10}$/.test(address.phone)) errors.phone = "Enter valid 10-digit number";
+    const normalizedEmail = address.email.trim();
+    if (!normalizedEmail) {
+      errors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      errors.email = "Enter valid email address";
+    }
     if (!/^\d{6}$/.test(address.pincode)) errors.pincode = "Enter 6-digit pincode";
     if (!address.city.trim()) errors.city = "City is required";
     if (!address.state) errors.state = "Select a state";
@@ -730,7 +737,7 @@ export default function Checkout() {
           customerInfo: {
             name: address.name,
             phone: address.phone,
-            email: 'customer@example.com', // Would come from user session in real app
+            email: address.email,
             address: `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`
           },
           cardDetails: payment.type === 'card' ? {
@@ -790,6 +797,7 @@ export default function Checkout() {
       <GatewayOTP
         amount={finalAmount}
         phone={address.phone}
+        email={address.email}
         cardLast4={cardLast4 || "0000"}
         onVerify={handleGatewayOTP}
       />
@@ -929,6 +937,18 @@ export default function Checkout() {
                       <input type="tel" maxLength={10} value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value.replace(/\D/g, "") })} placeholder="10-digit mobile number" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" data-testid="input-phone" />
                       {addressErrors.phone && <p className="text-red-500 text-xs mt-1">{addressErrors.phone}</p>}
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Email Address *</label>
+                    <input
+                      type="email"
+                      value={address.email}
+                      onChange={(e) => setAddress({ ...address, email: e.target.value })}
+                      placeholder="Enter your email"
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                      data-testid="input-email"
+                    />
+                    {addressErrors.email && <p className="text-red-500 text-xs mt-1">{addressErrors.email}</p>}
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Address *</label>
