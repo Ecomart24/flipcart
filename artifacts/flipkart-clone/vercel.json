@@ -2,13 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "pnpm install --frozen-lockfile",
-<<<<<<< HEAD
   "buildCommand": "pnpm build",
   "outputDirectory": "dist/public",
-=======
-  "buildCommand": "pnpm --filter @workspace/flipkart-clone build",
-  "outputDirectory": "public",
->>>>>>> b56e90b37ac865b10f1a252178a8b26c2f565642
   "rewrites": [
     {
       "source": "/((?!.*\\.).*)",
