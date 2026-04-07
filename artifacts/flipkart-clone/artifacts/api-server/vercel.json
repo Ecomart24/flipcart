@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "echo Skip install (prebuilt static bundle)",
+  "installCommand": "echo Skip install prebuilt static bundle",
   "buildCommand": "echo Use committed public output",
   "outputDirectory": "public",
   "rewrites": [
